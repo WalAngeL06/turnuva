@@ -34,5 +34,7 @@ if (Array.isArray(pub.participants)) {
 
 pub.last_updated = new Date().toISOString();
 
-fs.writeFileSync('data/turnuva_public.json', JSON.stringify(pub, null, 1), 'utf8');
-console.log('Successfully generated data/turnuva_public.json!');
+const jsonStr = JSON.stringify(pub, null, 1);
+fs.writeFileSync('data/turnuva_public.json', jsonStr, 'utf8');
+fs.writeFileSync('web/data/turnuva_public.json', jsonStr, 'utf8');
+console.log('Successfully generated data/turnuva_public.json & web/data/turnuva_public.json!');

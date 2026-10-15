@@ -668,14 +668,36 @@
       <!-- Zero-Button Real-Time Cloud Sync Banner -->
       <div class="p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/90 via-slate-900 to-emerald-950/80 border border-emerald-500/40 text-emerald-200 text-xs flex items-start space-x-3 shadow-lg">
         <span class="text-2xl mt-0.5">⚡</span>
-        <div class="space-y-1">
-          <div class="flex items-center space-x-2">
+        <div class="space-y-1 flex-1">
+          <div class="flex items-center justify-between">
             <span class="font-bold text-white text-xs">Sıfır Buton Bulut Senkronizasyonu Aktif!</span>
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono border border-emerald-500/30">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span>
+              <span id="modal-cloud-broker">Bulut: Canlı (0.5s) ⚡</span>
+            </span>
           </div>
           <p class="text-slate-300 text-[11px] leading-relaxed">
             Yaptığınız her dokunuş (kart tıklama, saat belirleme, masa atama, skor güncelleme) arka planda <b>0.5 saniyede</b> salondaki tüm telefonlara canlı olarak akmaktadır. Herhangi bir butona basmanıza gerek yoktur.
           </p>
+        </div>
+      </div>
+
+      <!-- Firebase Realtime DB Bridge (Optional Dual-Channel) -->
+      <div class="bg-slate-900/80 rounded-xl p-3.5 border border-slate-700/80 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center space-x-1.5">
+            <span>🔥</span><span>Firebase Realtime DB Köprüsü (İsteğe Bağlı)</span>
+          </span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-amber-900/40 text-amber-300 border border-amber-500/30 font-semibold">Çift Kanal</span>
+        </div>
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          Kendi ücretsiz Firebase Realtime Veritabanınızı bağlayarak kısıtlayıcı Wi-Fi ağlarına karşı ek yedekli çift kanal canlı senkronizasyon sağlayabilirsiniz:
+        </p>
+        <div class="flex space-x-2">
+          <input type="url" id="firebase-url-input" placeholder="https://xxx-default-rtdb.firebaseio.com" class="flex-1 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white font-mono placeholder:text-slate-600 focus:outline-none focus:border-amber-500">
+          <button onclick="saveFirebaseUrl()" class="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-xs font-bold text-slate-950 transition active:scale-95">
+            Kaydet
+          </button>
         </div>
       </div>
 
@@ -821,10 +843,10 @@
         $('#github-token-input').value = savedToken;
       }
 
-      await fetchTournamentData();
-
       // Zero-Button Real-Time Cloud Synchronization
       initCloudSync();
+
+      await fetchTournamentData();
 
       // Smart Background Polling (60 sn + Ekran kapalıyken durdurma)
       let pollTimer = null;
@@ -858,6 +880,9 @@
       const label = $('#cloud-sync-label');
       const adminDot = $('#admin-sync-dot');
       const adminStatus = $('#admin-sync-status');
+      const modalBroker = $('#modal-cloud-broker');
+
+      const brokerName = (typeof CloudSync !== 'undefined' && CloudSync.getActiveBrokerName) ? CloudSync.getActiveBrokerName() : 'Bulut';
 
       if (status === 'connected') {
         if (badge) badge.className = 'inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold transition-all shadow-sm';
@@ -865,18 +890,21 @@
         if (label) label.textContent = 'Canlı Bulut Senkron (0.5s)';
         if (adminDot) adminDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
         if (adminStatus) adminStatus.textContent = 'Canlı (0.5s) ⚡';
+        if (modalBroker) modalBroker.textContent = brokerName + ': Canlı (0.5s) ⚡';
       } else if (status === 'connecting') {
         if (badge) badge.className = 'inline-flex items-center px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-semibold transition-all shadow-sm';
         if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping mr-1.5';
         if (label) label.textContent = 'Bulut Bağlanıyor...';
         if (adminDot) adminDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-ping';
         if (adminStatus) adminStatus.textContent = 'Bağlanıyor...';
+        if (modalBroker) modalBroker.textContent = 'Bağlanıyor...';
       } else {
         if (badge) badge.className = 'inline-flex items-center px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-400 text-[10px] font-semibold transition-all shadow-sm';
         if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-slate-500 mr-1.5';
         if (label) label.textContent = 'Çevrimdışı (Yerel Mod)';
         if (adminDot) adminDot.className = 'w-2 h-2 rounded-full bg-slate-500';
         if (adminStatus) adminStatus.textContent = 'Çevrimdışı';
+        if (modalBroker) modalBroker.textContent = 'Çevrimdışı';
       }
     }
 
@@ -887,18 +915,46 @@
         getAdminPin: () => getAdminPin()
       });
 
+      // Load saved Firebase URL if any
+      const savedFirebaseUrl = localStorage.getItem('turnuva_firebase_url');
+      if (savedFirebaseUrl) {
+        CloudSync.setFirebaseUrl(savedFirebaseUrl);
+        const fbInput = $('#firebase-url-input');
+        if (fbInput) fbInput.value = savedFirebaseUrl;
+      }
+
       CloudSync.onStatusChange((status, details) => {
         updateCloudSyncUI(status, details);
       });
 
       CloudSync.onRemoteUpdate((incomingState, timestamp) => {
-        if (!tournamentData || !tournamentData.last_updated || (timestamp && timestamp > tournamentData.last_updated)) {
+        if (!incomingState) return;
+
+        const currentRev = Number(tournamentData && tournamentData.rev) || 0;
+        const incomingRev = Number(incomingState.rev) || 0;
+        const currentTs = (tournamentData && tournamentData.last_updated) || '';
+        const incomingTs = timestamp || incomingState.last_updated || '';
+
+        const isIncomingNewer = !tournamentData ||
+          (incomingRev > currentRev) ||
+          (incomingRev === currentRev && incomingTs > currentTs);
+
+        if (isIncomingNewer) {
           tournamentData = incomingState;
           localStorage.setItem('turnuva_offline_data', JSON.stringify(tournamentData));
           renderAll();
           showToast('⚡ Canlı Güncelleme: Skorlar ve masalar anında güncellendi!', 'info');
         }
       });
+    }
+
+    function saveFirebaseUrl() {
+      const input = $('#firebase-url-input');
+      const val = input ? input.value.trim() : '';
+      if (typeof CloudSync !== 'undefined') {
+        CloudSync.setFirebaseUrl(val);
+      }
+      showToast(val ? 'Firebase Realtime DB bağlantısı kaydedildi! 🔥' : 'Firebase bağlantısı temizlendi.', 'success');
     }
 
     // Fetch tournament data
@@ -925,17 +981,46 @@
           }
         }
 
-        // 3. Fallback to localStorage
-        if (!res) {
+        // Compare against local offline storage to NEVER downgrade fresher local edits
+        let localData = null;
+        try {
           const localStr = localStorage.getItem('turnuva_offline_data');
-          if (localStr) res = JSON.parse(localStr);
+          if (localStr) localData = JSON.parse(localStr);
+        } catch (_) {}
+
+        if (localData) {
+          if (!res) {
+            res = localData;
+          } else {
+            const localRev = Number(localData.rev) || 0;
+            const resRev = Number(res.rev) || 0;
+            const localTs = localData.last_updated || '';
+            const resTs = res.last_updated || '';
+            // If local offline data is strictly newer than server static JSON, retain local data
+            if (localRev > resRev || (localRev === resRev && localTs > resTs)) {
+              res = localData;
+            }
+          }
         }
 
         if (res) {
-          tournamentData = res;
-          localStorage.setItem('turnuva_offline_data', JSON.stringify(tournamentData));
-          renderAll();
-          if (showFeedback) showToast('Turnuva verileri canlı güncellendi.', 'success');
+          const currentRev = Number(tournamentData && tournamentData.rev) || 0;
+          const currentTs = (tournamentData && tournamentData.last_updated) || '';
+          const candidateRev = Number(res.rev) || 0;
+          const candidateTs = res.last_updated || '';
+
+          const isCandidateNewer = !tournamentData ||
+            (candidateRev > currentRev) ||
+            (candidateRev === currentRev && candidateTs >= currentTs);
+
+          if (isCandidateNewer) {
+            tournamentData = res;
+            localStorage.setItem('turnuva_offline_data', JSON.stringify(tournamentData));
+            renderAll();
+            if (showFeedback) showToast('Turnuva verileri canlı güncellendi.', 'success');
+          } else if (showFeedback) {
+            showToast('Zaten en güncel sürümdesiniz.', 'info');
+          }
         } else {
           if (showFeedback) showToast('Veri dosyasına ulaşılamadı.', 'error');
         }
@@ -2272,6 +2357,11 @@
 
     // Save offline and refresh + Zero-Button Instant Cloud Broadcast
     function saveOfflineAndRefresh(toastMsg) {
+      if (!tournamentData) return;
+      // Monotonic revision increment and current ISO timestamp guarantee
+      tournamentData.rev = (Number(tournamentData.rev) || 0) + 1;
+      tournamentData.last_updated = new Date().toISOString();
+
       localStorage.setItem('turnuva_offline_data', JSON.stringify(tournamentData));
       renderAll();
       showToast(toastMsg, 'success');
@@ -2279,7 +2369,8 @@
       // ZERO-BUTTON INSTANT CLOUD BROADCAST
       if (isAdmin && typeof CloudSync !== 'undefined') {
         const publicData = sanitizeForPublic(tournamentData);
-        publicData.last_updated = tournamentData.last_updated || new Date().toISOString();
+        publicData.last_updated = tournamentData.last_updated;
+        publicData.rev = tournamentData.rev;
 
         CloudSync.broadcast(publicData, getAdminPin())
           .then((sent) => {
@@ -2299,6 +2390,10 @@
 
     // Modal open for Sync
     function openSyncModal() {
+      const fbInput = $('#firebase-url-input');
+      if (fbInput && typeof CloudSync !== 'undefined') {
+        fbInput.value = CloudSync.getFirebaseUrl() || '';
+      }
       openModal('sync-modal');
     }
 

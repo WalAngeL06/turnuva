@@ -93,6 +93,9 @@
         </div>
       </div>
       <div class="flex items-center space-x-2">
+        <button onclick="switchView('admin-schedule')" class="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-400/60 flex items-center space-x-1.5 transition active:scale-95 font-bold shadow-md shadow-indigo-600/20" title="Maç numarası girerek doğrudan saat belirle">
+          <span>⏰</span><span>Maç Saati Belirle</span>
+        </button>
         <button onclick="downloadJsonBackup()" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400/60 flex items-center space-x-1.5 transition active:scale-95 font-bold shadow-md shadow-emerald-600/20" title="Tek tıkla en güncel turnuva JSON dosyasını indir">
           <span>📥</span><span>Güncel JSON İndir</span>
         </button>
@@ -250,16 +253,16 @@
           <span>🏆</span><span>Turnuva Ağacı</span>
         </button>
         <button onclick="switchView('schedule')" id="tab-view-schedule" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center space-x-2 transition active:scale-95 shrink-0">
-          <span>⏰</span><span>Maç Saatleri / Program</span>
-        </button>
-        <button onclick="switchView('tables')" id="tab-view-tables" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center space-x-2 transition active:scale-95 shrink-0">
-          <span>🏓</span><span>Masa Durumu</span>
+          <span>⏰</span><span>Bugünkü Fikstür</span>
         </button>
         <button onclick="switchView('search')" id="tab-view-search" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center space-x-2 transition active:scale-95 shrink-0">
           <span>🔍</span><span>Oyuncu Ara & Fikstürüm</span>
         </button>
         <button onclick="switchView('podium')" id="tab-view-podium" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center space-x-2 transition active:scale-95 shrink-0">
           <span>🥇</span><span>Dereceler</span>
+        </button>
+        <button onclick="switchView('admin-schedule')" id="tab-view-admin-schedule" class="hidden px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 border border-indigo-500/40 flex items-center space-x-2 transition active:scale-95 shrink-0">
+          <span>👑</span><span>Maç Saati Belirle (Admin)</span>
         </button>
       </nav>
 
@@ -327,7 +330,7 @@
 
     </section>
 
-    <!-- VIEW: SCHEDULE & MATCH PROGRAM (MAÇ SAATLERİ & PROGRAM ÇİZELGESİ) -->
+    <!-- VIEW: SCHEDULE & MATCH PROGRAM (OYUNCULARIN BUGÜNKÜ FİKSTÜRÜ) -->
     <section id="view-schedule-container" class="hidden space-y-6">
       <!-- WhatsApp Style Top Banner -->
       <div class="glass-card rounded-2xl p-5 border border-emerald-500/30 bg-gradient-to-r from-emerald-950/70 via-slate-900/90 to-emerald-950/70 space-y-4">
@@ -340,8 +343,8 @@
               <span class="text-xs text-slate-400">•</span>
               <span id="schedule-day-indicator" class="text-xs font-semibold text-amber-300">16 Ekim Cuma</span>
             </div>
-            <h2 class="text-base sm:text-xl font-extrabold text-white">🏓 Maç Başlangıç Saatleri & Çizelge</h2>
-            <p class="text-xs text-slate-300">Aşağıdaki saatler maç başlangıç vakitleridir. Masalar canlı olarak atanır.</p>
+            <h2 class="text-base sm:text-xl font-extrabold text-white">🏓 Bugünkü Maç Fikstürü & Başlangıç Saatleri</h2>
+            <p class="text-xs text-slate-300">Yönetim tarafından belirlenen maç saatleri aşağıda saat sırasına göre listelenmektedir.</p>
           </div>
 
           <!-- Top Actions -->
@@ -355,14 +358,14 @@
         <!-- Filter Chips for Dates & Unscheduled -->
         <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-emerald-500/20 text-xs">
           <span class="text-slate-400 text-[11px] font-semibold">Filtrele:</span>
-          <button onclick="setScheduleDateFilter('16 Ekim')" id="filter-sched-16" class="px-3 py-1 rounded-lg text-xs font-bold transition active:scale-95 bg-emerald-500 text-slate-950">
-            📅 16 Ekim Cuma
-          </button>
-          <button onclick="setScheduleDateFilter('all')" id="filter-sched-all" class="px-3 py-1 rounded-lg text-xs font-semibold text-slate-400 hover:text-white bg-slate-900 border border-slate-800 transition active:scale-95">
-            Tüm Maçlar
+          <button onclick="setScheduleDateFilter('scheduled')" id="filter-sched-scheduled" class="px-3 py-1 rounded-lg text-xs font-bold transition active:scale-95 bg-emerald-500 text-slate-950">
+            ⏰ Saat Atanan Tüm Maçlar
           </button>
           <button onclick="setScheduleDateFilter('unscheduled')" id="filter-sched-unscheduled" class="px-3 py-1 rounded-lg text-xs font-semibold text-amber-400/90 hover:text-amber-300 bg-slate-900 border border-slate-800 transition active:scale-95">
             ⏳ Saat Bekleyenler
+          </button>
+          <button onclick="setScheduleDateFilter('all')" id="filter-sched-all" class="px-3 py-1 rounded-lg text-xs font-semibold text-slate-400 hover:text-white bg-slate-900 border border-slate-800 transition active:scale-95">
+            📋 Tüm Karşılaşmalar
           </button>
         </div>
       </div>
@@ -373,16 +376,87 @@
       </div>
     </section>
 
-    <!-- VIEW 2: TABLES (MASA DURUMU & SALON) -->
-    <section id="view-tables-container" class="hidden space-y-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-base sm:text-lg font-bold text-white">🏓 Salon Masa Durumları</h2>
-          <p class="text-xs text-slate-400">Masalarda oynanan canlı maçlar ve sırada bekleyen eşleşmeler</p>
+    <!-- VIEW: ADMIN MATCH SCHEDULER (YÖNETİCİ MAÇ SAATİ BELİRLEME SAYFASI) -->
+    <section id="view-admin-schedule-container" class="hidden space-y-6 max-w-5xl mx-auto">
+      <!-- Top Banner -->
+      <div class="glass-card rounded-2xl p-5 border border-indigo-500/30 bg-gradient-to-r from-indigo-950/70 via-slate-900/90 to-indigo-950/70 space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 uppercase tracking-wider">
+                👑 Yönetici Paneli
+              </span>
+              <span class="text-xs text-slate-400">•</span>
+              <span class="text-xs font-semibold text-emerald-300">Canlı Senkronize</span>
+            </div>
+            <h2 class="text-lg sm:text-2xl font-extrabold text-white">⏰ Maç Saati Belirleme & Planlama</h2>
+            <p class="text-xs text-slate-300">Maç numarası girerek maçı çağırın ve sağ sütundan saatini belirleyin. Kaydedilen saatler <b>anında tüm oyuncuların Bugünkü Fikstür ekranına</b> düşer.</p>
+          </div>
+          <button onclick="switchView('schedule')" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center space-x-1.5 transition active:scale-95 shrink-0">
+            <span>👀</span><span>Oyuncu Fikstürünü Gör</span>
+          </button>
         </div>
       </div>
-      <div id="tables-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        <!-- Dynamically rendered table cards -->
+
+      <!-- Feature 1: Maç No Girip Maçı Getir ve Saat Seç -->
+      <div class="glass-card rounded-2xl p-5 border border-slate-800/80 bg-slate-950/70 space-y-4 shadow-lg">
+        <div class="flex items-center space-x-2 text-sm font-bold text-white border-b border-slate-800/80 pb-2">
+          <span class="text-amber-400">⚡</span>
+          <span>Hızlı Maç Getir & Saat Belirle</span>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div class="relative flex-1">
+            <input type="text" id="admin-lookup-input" oninput="handleAdminLookupInput(this.value)" onkeydown="if(event.key==='Enter')handleAdminLookupInput(this.value)" placeholder="Maç Numarası (örn: 15 veya R0-15) veya Oyuncu Adı yazın..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 font-mono">
+          </div>
+          <button onclick="handleAdminLookupInput($('#admin-lookup-input').value)" class="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition active:scale-95 flex items-center justify-center space-x-2 shrink-0">
+            <span>🔍</span><span>Maçı Getir</span>
+          </button>
+        </div>
+
+        <!-- Lookup Result Card (Dynamically rendered) -->
+        <div id="admin-lookup-result" class="transition-all">
+          <div class="p-4 rounded-xl bg-slate-900/40 border border-dashed border-slate-800 text-center text-xs text-slate-500">
+            Yukarıdaki kutucuğa maç numarasını (örn: <b>15</b> veya <b>R0-15</b>) yazarak maçı çağırabilirsiniz.
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 2: Tüm Maçlar ve Sağ Sütun Saat Seçimi Tablosu -->
+      <div class="glass-card rounded-2xl p-5 border border-slate-800/80 bg-slate-950/70 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+          <div class="space-y-0.5">
+            <h3 class="text-sm sm:text-base font-bold text-white flex items-center space-x-2">
+              <span>📋</span><span>Tüm Maçlar Listesi</span>
+              <span id="admin-match-list-count" class="text-xs font-mono font-normal text-slate-400"></span>
+            </h3>
+            <p class="text-[11px] text-slate-400">Her maçın sağ sütunundaki saat menüsünden doğrudan seçim yapabilirsiniz.</p>
+          </div>
+
+          <!-- Round & Status Filter -->
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="admin-filter-round" onchange="filterAdminMatchList()" class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-200">
+              <option value="-1">Tüm Turlar</option>
+              <option value="0">1. Tur (Son 128)</option>
+              <option value="1">2. Tur (Son 64)</option>
+              <option value="2">3. Tur (Son 32)</option>
+              <option value="3">4. Tur (Son 16)</option>
+              <option value="4">Çeyrek Final</option>
+              <option value="5">Yarı Final</option>
+              <option value="6">Büyük Final</option>
+            </select>
+            <select id="admin-filter-status" onchange="filterAdminMatchList()" class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-200">
+              <option value="all">Tüm Durumlar</option>
+              <option value="scheduled">⏰ Saati Olanlar</option>
+              <option value="unscheduled">⏳ Saat Bekleyenler</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Match Rows Container -->
+        <div id="admin-match-rows-container" class="space-y-2.5">
+          <!-- Dynamically rendered rows -->
+        </div>
       </div>
     </section>
 
@@ -841,6 +915,8 @@
       if (sessionStorage.getItem('turnuva_admin') === 'true') {
         isAdmin = true;
         $('#admin-banner').classList.remove('hidden');
+        const tabAdm = $('#tab-view-admin-schedule');
+        if (tabAdm) tabAdm.classList.remove('hidden');
       }
 
       // Load token if saved
@@ -1077,8 +1153,10 @@
       renderBracket();
       renderTreeBracket();
       renderSchedule();
-      renderTables();
       renderPodium();
+      if (currentView === 'admin-schedule') {
+        renderAdminSchedule();
+      }
       if (currentView === 'search') {
         renderPlayerFinder($('#player-finder-input').value);
       }
@@ -1132,22 +1210,32 @@
 
     // View Switcher
     function switchView(v) {
+      if (v === 'admin-schedule' && !isAdmin) {
+        promptAdminLogin();
+        return;
+      }
       currentView = v;
-      const tabs = ['bracket', 'schedule', 'tables', 'search', 'podium'];
+      const tabs = ['bracket', 'schedule', 'search', 'podium', 'admin-schedule'];
       tabs.forEach(t => {
         const btn = $('#tab-view-' + t);
         const container = $('#view-' + t + '-container');
         if (!btn || !container) return;
         if (t === v) {
-          btn.className = 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-brand-600 text-white shadow-sm flex items-center space-x-2 transition active:scale-95 shrink-0';
+          btn.className = (t === 'admin-schedule')
+            ? 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 text-white shadow-sm flex items-center space-x-2 transition active:scale-95 shrink-0'
+            : 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-brand-600 text-white shadow-sm flex items-center space-x-2 transition active:scale-95 shrink-0';
           container.classList.remove('hidden');
         } else {
-          btn.className = 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center space-x-2 transition active:scale-95 shrink-0';
+          btn.className = (t === 'admin-schedule')
+            ? 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 border border-indigo-500/40 flex items-center space-x-2 transition active:scale-95 shrink-0'
+            : 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center space-x-2 transition active:scale-95 shrink-0';
           container.classList.add('hidden');
         }
       });
       if (v === 'schedule') {
         renderSchedule();
+      } else if (v === 'admin-schedule') {
+        renderAdminSchedule();
       }
     }
 
@@ -1618,11 +1706,11 @@
     // ========================================================
     // SCHEDULE VIEW RENDERING (MAÇ PROGRAMI & SAATLER)
     // ========================================================
-    let currentScheduleDateFilter = '16 Ekim';
+    let currentScheduleDateFilter = 'scheduled';
 
     function setScheduleDateFilter(filter) {
       currentScheduleDateFilter = filter;
-      const b16 = $('#filter-sched-16');
+      const bSched = $('#filter-sched-scheduled');
       const bAll = $('#filter-sched-all');
       const bUn = $('#filter-sched-unscheduled');
 
@@ -1630,7 +1718,7 @@
       const inactiveClass = 'px-3 py-1 rounded-lg text-xs font-semibold text-slate-400 hover:text-white bg-slate-900 border border-slate-800 transition active:scale-95';
       const unschedClass = 'px-3 py-1 rounded-lg text-xs font-semibold text-amber-400/90 hover:text-amber-300 bg-slate-900 border border-slate-800 transition active:scale-95';
 
-      if (b16) b16.className = filter === '16 Ekim' ? activeClass : inactiveClass;
+      if (bSched) bSched.className = filter === 'scheduled' ? activeClass : inactiveClass;
       if (bAll) bAll.className = filter === 'all' ? activeClass : inactiveClass;
       if (bUn) bUn.className = filter === 'unscheduled' ? activeClass : unschedClass;
 
@@ -1654,10 +1742,12 @@
         const res = m.result || {};
         if (currentScheduleDateFilter === 'unscheduled') {
           return !res.time && m.playable && (!m.winner || m.winner.type !== 'player');
-        } else if (currentScheduleDateFilter === '16 Ekim') {
-          return res.date && res.date.includes('16 Ekim');
+        } else if (currentScheduleDateFilter === 'all') {
+          return true;
+        } else {
+          // Default: 'scheduled' -> all matches with an assigned time!
+          return Boolean(res.time);
         }
-        return true;
       });
 
       // Filter by global search query
@@ -1672,9 +1762,16 @@
       if (list.length === 0) {
         container.innerHTML = `
           <div class="glass-card rounded-2xl p-12 border border-slate-800 text-center space-y-3">
-            <span class="text-3xl">📅</span>
-            <p class="text-slate-400 text-sm font-semibold">Bu filtreye uygun maç programı bulunamadı.</p>
-            <p class="text-slate-500 text-xs">Farklı bir filtre seçerek veya yukarıdan tüm maçları listeleyebilirsiniz.</p>
+            <span class="text-3xl">⏰</span>
+            <p class="text-slate-300 text-sm font-semibold">${currentScheduleDateFilter === 'scheduled' ? 'Henüz maç saati belirlenmiş bir karşılaşma bulunmuyor.' : 'Bu filtreye uygun maç programı bulunamadı.'}</p>
+            <p class="text-slate-400 text-xs">${currentScheduleDateFilter === 'scheduled' ? 'Yönetim maç saatlerini belirledikçe karşılaşmalar anında burada saat sırasına göre canlı görünecektir.' : 'Farklı bir filtre seçerek maçları listeleyebilirsiniz.'}</p>
+            ${isAdmin ? `
+              <div class="pt-2">
+                <button onclick="switchView('admin-schedule')" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition shadow-md">
+                  👑 Maç Saatlerini Şimdi Belirle
+                </button>
+              </div>
+            ` : ''}
           </div>
         `;
         return;
@@ -1865,15 +1962,11 @@
       const pmap = TL.participantMap(tournamentData);
       const allMatches = computedBracket.rounds.flat().concat(computedBracket.third ? [computedBracket.third] : []);
 
-      // Filter matches by date
+      // Filter matches with time
       let list = allMatches.filter(m => {
         if (m.auto && (m.sides[0].type === 'bye' || m.sides[1].type === 'bye')) return false;
         const res = m.result;
-        if (!res) return false;
-        if (dateFilter && dateFilter === '16 Ekim') {
-          return res.date && res.date.includes('16 Ekim');
-        }
-        return !!res.time;
+        return res && Boolean(res.time);
       });
 
       if (list.length === 0) {
@@ -1891,15 +1984,15 @@
 
       const sortedTimes = Object.keys(timeGroups).sort((a, b) => a.localeCompare(b));
 
-      let text = `🏓 Erkekler Masa Tenisi Turnuvası – 3. Gün\n\n`;
-      text += `Yarın, 16 Ekim Cuma, 1. turun kalan maçları oynanacak ve 1. tur tamamlanacaktır. Maç başlangıç saatleri aşağıdaki gibidir:\n\n`;
+      let text = `🏓 Erkekler Masa Tenisi Turnuvası – Günlük Maç Çizelgesi\n\n`;
+      text += `Maç başlangıç saatleri aşağıdaki gibidir:\n\n`;
 
       sortedTimes.forEach(t => {
         text += `⏰ ${t.replace(':', '.')}\n`;
         timeGroups[t].forEach(m => {
           const p1 = getSideName(m.sides[0], pmap);
           const p2 = getSideName(m.sides[1], pmap);
-          const num = m.result && m.result.matchNum ? `(${m.result.matchNum}) ` : '';
+          const num = m.result && m.result.matchNum ? `(${m.result.matchNum}) ` : `(#${m.id}) `;
           text += `${num}${p1} – ${p2}\n`;
         });
         text += `\n`;
@@ -1912,75 +2005,233 @@
       });
     }
 
-    // TABLES VIEW (CANLI SALON)
-    function renderTables() {
+    // ========================================================
+    // ADMIN MATCH SCHEDULER (MAÇ NO GİREREK SAAT BELİRLEME)
+    // ========================================================
+    let adminScheduleRound = -1;
+    let adminScheduleStatus = 'all';
+
+    function filterAdminMatchList() {
+      const rEl = $('#admin-filter-round');
+      const sEl = $('#admin-filter-status');
+      if (rEl) adminScheduleRound = parseInt(rEl.value, 10);
+      if (sEl) adminScheduleStatus = sEl.value;
+      renderAdminMatchRows();
+    }
+
+    function renderAdminSchedule() {
       if (!computedBracket || !tournamentData) return;
-      const container = $('#tables-grid');
-      const tables = tournamentData.tables || ['Masa 1', 'Masa 2', 'Masa 3', 'Masa 4'];
+      const container = $('#view-admin-schedule-container');
+      if (!container) return;
+
+      const lookupInp = $('#admin-lookup-input');
+      if (lookupInp && lookupInp.value.trim()) {
+        handleAdminLookupInput(lookupInp.value);
+      } else {
+        const resBox = $('#admin-lookup-result');
+        if (resBox) {
+          resBox.innerHTML = `
+            <div class="p-4 rounded-xl bg-slate-900/40 border border-dashed border-slate-800 text-center text-xs text-slate-500">
+              Yukarıdaki kutucuğa maç numarasını (örn: <b>15</b> veya <b>R0-15</b>) yazarak maçı çağırabilirsiniz.
+            </div>
+          `;
+        }
+      }
+
+      renderAdminMatchRows();
+    }
+
+    function handleAdminLookupInput(rawQuery) {
+      const q = (rawQuery || '').trim().toLocaleLowerCase('tr');
+      const resBox = $('#admin-lookup-result');
+      if (!resBox) return;
+
+      if (!q) {
+        resBox.innerHTML = `
+          <div class="p-4 rounded-xl bg-slate-900/40 border border-dashed border-slate-800 text-center text-xs text-slate-500">
+            Yukarıdaki kutucuğa maç numarasını (örn: <b>15</b> veya <b>R0-15</b>) yazarak maçı çağırabilirsiniz.
+          </div>
+        `;
+        return;
+      }
+
+      if (!computedBracket || !tournamentData) return;
       const pmap = TL.participantMap(tournamentData);
       const allMatches = computedBracket.rounds.flat().concat(computedBracket.third ? [computedBracket.third] : []);
 
-      container.innerHTML = tables.map(tableName => {
-        // Active match on this table
-        const liveMatch = allMatches.find(m => {
-          const res = m.result;
-          return res && res.table === tableName && res.status === 'in_progress';
-        });
+      const matches = allMatches.filter(m => {
+        if (m.auto && (m.sides[0].type === 'bye' || m.sides[1].type === 'bye')) return false;
 
-        // Next queued matches
-        const nextMatches = allMatches.filter(m => {
-          const res = m.result;
-          return res && res.table === tableName && res.status === 'scheduled';
-        });
+        const idLower = m.id.toLocaleLowerCase();
+        const matchPart = (m.id.split('-')[1] || '').toLocaleLowerCase();
+        const matchNumStr = m.result && m.result.matchNum ? String(m.result.matchNum) : '';
+        const indexStr = String(m.m + 1);
+
+        if (idLower === q || matchPart === q || matchNumStr === q || indexStr === q || idLower.includes(q)) {
+          return true;
+        }
+
+        const p1 = getSideName(m.sides[0], pmap).toLocaleLowerCase('tr');
+        const p2 = getSideName(m.sides[1], pmap).toLocaleLowerCase('tr');
+        return p1.includes(q) || p2.includes(q);
+      });
+
+      matches.sort((a, b) => {
+        const aPart = (a.id.split('-')[1] || '').toLocaleLowerCase() === q || a.id.toLocaleLowerCase() === q;
+        const bPart = (b.id.split('-')[1] || '').toLocaleLowerCase() === q || b.id.toLocaleLowerCase() === q;
+        if (aPart && !bPart) return -1;
+        if (!aPart && bPart) return 1;
+        return a.r - b.r || a.m - b.m;
+      });
+
+      if (matches.length === 0) {
+        resBox.innerHTML = `
+          <div class="p-5 rounded-xl bg-amber-950/20 border border-amber-800/40 text-center space-y-1">
+            <span class="text-xl">🔍</span>
+            <p class="text-xs font-semibold text-amber-300">"${rawQuery}" için eşleşen maç bulunamadı.</p>
+            <p class="text-[11px] text-slate-400">Maç numarasını (örn: 15 veya R0-15) ya da oyuncu adını kontrol edin.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const standardHours = [
+        '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', 
+        '14:00', '14:15', '14:30', '14:45', '15:00', '15:15', '15:30', '15:45', 
+        '16:00', '16:15', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'
+      ];
+
+      resBox.innerHTML = matches.slice(0, 3).map(m => {
+        const res = m.result || {};
+        const p1 = getSideName(m.sides[0], pmap);
+        const p2 = getSideName(m.sides[1], pmap);
+        const hasTime = Boolean(res.time);
 
         return `
-          <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-4 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                <div class="flex items-center space-x-2.5">
-                  <div class="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold">
-                    🏓
-                  </div>
-                  <h3 class="font-extrabold text-white text-base">${tableName}</h3>
-                </div>
-                ${liveMatch ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 pulse-dot">Canlı Maç</span>' : '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-800 text-slate-400">Şu An Boş</span>'}
+          <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-900 to-indigo-950/40 border-2 ${hasTime ? 'border-emerald-500/50 shadow-lg shadow-emerald-950/30' : 'border-indigo-500/50 shadow-lg shadow-indigo-950/30'} flex flex-col md:flex-row md:items-center justify-between gap-4 mb-3">
+            <!-- Sol Sütun: Maç Bilgisi -->
+            <div class="space-y-2 flex-1 min-w-0">
+              <div class="flex items-center space-x-2">
+                <span class="px-2.5 py-1 rounded-lg bg-indigo-950 border border-indigo-500/40 text-indigo-300 font-mono font-black text-xs">#${m.id}</span>
+                <span class="text-xs text-slate-400 font-medium">${m.isThird ? '3.lük Maçı' : TL.roundName(m.r, computedBracket.R)}</span>
+                ${res.table ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">🏓 ${res.table}</span>` : ''}
               </div>
 
-              <!-- Live Match Display -->
-              ${liveMatch ? `
-                <div class="mt-4 p-4 rounded-xl bg-gradient-to-tr from-emerald-950/60 to-slate-900 border border-emerald-500/30 space-y-2.5">
-                  <div class="flex items-center justify-between text-[11px] text-emerald-400 font-semibold uppercase tracking-wider">
-                    <span>${liveMatch.isThird ? '3.lük Maçı' : TL.roundName(liveMatch.r, computedBracket.R)} (#${liveMatch.id})</span>
-                    <span>Oynanıyor</span>
-                  </div>
-                  <div class="flex items-center justify-between text-sm font-extrabold text-white">
-                    <span class="truncate max-w-[120px]">${getSideName(liveMatch.sides[0], pmap)}</span>
-                    <span class="font-mono text-emerald-400 text-lg px-2">${liveMatch.result && liveMatch.result.scores ? `${liveMatch.result.scores[liveMatch.sides[0].id] || 0} - ${liveMatch.result.scores[liveMatch.sides[1].id] || 0}` : '0 - 0'}</span>
-                    <span class="truncate max-w-[120px] text-right">${getSideName(liveMatch.sides[1], pmap)}</span>
-                  </div>
-                </div>
-              ` : `
-                <div class="mt-4 p-5 rounded-xl bg-slate-900/40 border border-dashed border-slate-800 text-center text-xs text-slate-500">
-                  Şu an bu masada canlı oynanan maç yok.
-                </div>
-              `}
+              <div class="flex items-center space-x-2 text-sm sm:text-base font-extrabold text-white">
+                <span class="text-emerald-300">${p1}</span>
+                <span class="text-slate-500 font-normal text-xs px-1">vs</span>
+                <span class="text-amber-300">${p2}</span>
+              </div>
+
+              <div class="flex items-center space-x-2 text-xs">
+                ${hasTime ? `
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-bold">
+                    ✓ Maç Saati: ${res.time}
+                  </span>
+                  <span class="text-[11px] text-emerald-400 font-medium">• Oyuncu ekranında yayında</span>
+                ` : `
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-semibold">
+                    ⏳ Henüz Saat Atanmadı
+                  </span>
+                `}
+              </div>
             </div>
 
-            <!-- Next Queue on Table -->
-            <div class="pt-3 border-t border-slate-800/60">
-              <p class="text-xs font-semibold text-slate-400 mb-2">Bu Masada Sırada Bekleyenler:</p>
-              ${nextMatches.length > 0 ? `
-                <div class="space-y-1.5">
-                  ${nextMatches.slice(0, 3).map(m => `
-                    <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/80 text-xs">
-                      <span class="text-slate-300 font-medium truncate max-w-[160px]">${getSideName(m.sides[0], pmap)} vs ${getSideName(m.sides[1], pmap)}</span>
-                      <span class="text-slate-400 font-mono text-[11px] shrink-0">${m.result && m.result.time ? m.result.time : 'Sırada'}</span>
-                    </div>
-                  `).join('')}
+            <!-- Sağ Sütun: Saat Seçimi -->
+            <div class="w-full md:w-80 space-y-2 pt-3 md:pt-0 md:pl-4 border-t md:border-t-0 md:border-l border-slate-800">
+              <label class="text-xs font-bold text-slate-300 block">Maç Saati Seçin (Sağ Sütun):</label>
+              <div class="flex items-center space-x-2">
+                <select onchange="updateMatchTimeDirectly('${m.id}', this.value); handleAdminLookupInput('${rawQuery}')" class="flex-1 px-3 py-2 rounded-xl bg-slate-950 border ${hasTime ? 'border-emerald-500 text-emerald-300' : 'border-indigo-500 text-amber-300'} font-mono font-bold text-sm focus:outline-none shadow-inner cursor-pointer">
+                  <option value="">-- Saat Seçin --</option>
+                  ${standardHours.map(t => `<option value="${t}" ${res.time === t ? 'selected' : ''}>${t}</option>`).join('')}
+                </select>
+                ${hasTime ? `
+                  <button onclick="updateMatchTimeDirectly('${m.id}', ''); handleAdminLookupInput('${rawQuery}')" class="px-2.5 py-2 rounded-xl bg-red-950/80 hover:bg-red-900 text-red-200 border border-red-700/50 text-xs font-bold transition active:scale-95 shrink-0" title="Saati Kaldır">
+                    ✕
+                  </button>
+                ` : ''}
+              </div>
+
+              <!-- Hızlı Saat Butonları -->
+              <div class="flex flex-wrap gap-1 pt-1">
+                ${['14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'].map(t => `
+                  <button onclick="updateMatchTimeDirectly('${m.id}', '${t}'); handleAdminLookupInput('${rawQuery}')" class="px-2 py-0.5 rounded text-[11px] font-mono font-bold transition active:scale-95 ${res.time === t ? 'bg-emerald-600 text-white shadow' : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700'}">
+                    ${t}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAdminMatchRows() {
+      if (!computedBracket || !tournamentData) return;
+      const container = $('#admin-match-rows-container');
+      const countEl = $('#admin-match-list-count');
+      if (!container) return;
+
+      const pmap = TL.participantMap(tournamentData);
+      const allMatches = computedBracket.rounds.flat().concat(computedBracket.third ? [computedBracket.third] : []);
+
+      let list = allMatches.filter(m => {
+        if (m.auto && (m.sides[0].type === 'bye' || m.sides[1].type === 'bye')) return false;
+        if (adminScheduleRound !== -1 && m.r !== adminScheduleRound) return false;
+        const res = m.result || {};
+        if (adminScheduleStatus === 'scheduled' && !res.time) return false;
+        if (adminScheduleStatus === 'unscheduled' && res.time) return false;
+        return true;
+      });
+
+      if (countEl) countEl.textContent = `(${list.length} Karşılaşma)`;
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 rounded-xl bg-slate-900/40 border border-dashed border-slate-800 text-center text-xs text-slate-500">
+            Filtreye uygun maç bulunamadı.
+          </div>
+        `;
+        return;
+      }
+
+      const standardHours = [
+        '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', 
+        '14:00', '14:15', '14:30', '14:45', '15:00', '15:15', '15:30', '15:45', 
+        '16:00', '16:15', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'
+      ];
+
+      container.innerHTML = list.map(m => {
+        const res = m.result || {};
+        const p1 = getSideName(m.sides[0], pmap);
+        const p2 = getSideName(m.sides[1], pmap);
+        const hasTime = Boolean(res.time);
+
+        return `
+          <div class="glass-card rounded-xl p-3 border ${hasTime ? 'border-emerald-500/40 bg-slate-900/80' : 'border-slate-800/80 bg-slate-900/50'} flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition hover:border-slate-700">
+            <!-- Sol Sütun: Maç Bilgisi -->
+            <div class="flex items-center space-x-3 min-w-0">
+              <span class="w-16 text-center font-mono text-xs font-bold py-1 rounded-lg ${hasTime ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40' : 'bg-slate-800 text-slate-400'} shrink-0">#${m.id}</span>
+              <div class="min-w-0">
+                <div class="text-[10px] text-slate-400">${m.isThird ? '3.lük Maçı' : TL.roundName(m.r, computedBracket.R)}</div>
+                <div class="text-xs sm:text-sm font-bold text-white truncate">
+                  <span>${p1}</span>
+                  <span class="text-slate-500 font-normal mx-1">vs</span>
+                  <span>${p2}</span>
                 </div>
-              ` : `
-                <p class="text-[11px] text-slate-500 italic">Sırada bekleyen maç bulunmuyor.</p>
-              `}
+              </div>
+            </div>
+
+            <!-- Sağ Sütun: Saat Seçimi -->
+            <div class="flex items-center space-x-2 shrink-0 self-end sm:self-center">
+              ${hasTime ? `<span class="text-xs font-mono font-bold text-emerald-400 px-2 py-1 rounded bg-emerald-950 border border-emerald-500/40">⏰ ${res.time}</span>` : `<span class="text-[11px] text-slate-500 font-mono">Saat atanmadı</span>`}
+              <select onchange="updateMatchTimeDirectly('${m.id}', this.value)" class="px-2.5 py-1.5 rounded-lg bg-slate-950 border ${hasTime ? 'border-emerald-500/50 text-emerald-300' : 'border-slate-700 text-slate-300'} font-mono font-bold text-xs focus:outline-none cursor-pointer">
+                <option value="">(Saat Değiştir)</option>
+                ${standardHours.map(t => `<option value="${t}" ${res.time === t ? 'selected' : ''}>${t}</option>`).join('')}
+              </select>
+              ${hasTime ? `
+                <button onclick="updateMatchTimeDirectly('${m.id}', '')" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-red-950 hover:text-red-300 text-slate-400 flex items-center justify-center text-xs transition" title="Saati Kaldır">✕</button>
+              ` : ''}
             </div>
           </div>
         `;
@@ -2137,9 +2388,14 @@
         isAdmin = true;
         sessionStorage.setItem('turnuva_admin', 'true');
         $('#admin-banner').classList.remove('hidden');
+        const tabAdm = $('#tab-view-admin-schedule');
+        if (tabAdm) tabAdm.classList.remove('hidden');
         closeModal('admin-login-modal');
         showToast('Yönetici moduna başarıyla girildi! 👑', 'success');
         renderAll();
+        if (currentView === 'admin-schedule') {
+          switchView('admin-schedule');
+        }
       } else {
         showToast('Hatalı PIN kodu!', 'error');
       }
@@ -2149,8 +2405,14 @@
       isAdmin = false;
       sessionStorage.removeItem('turnuva_admin');
       $('#admin-banner').classList.add('hidden');
+      const tabAdm = $('#tab-view-admin-schedule');
+      if (tabAdm) tabAdm.classList.add('hidden');
       showToast('Yönetici modundan çıkıldı.', 'info');
-      renderAll();
+      if (currentView === 'admin-schedule') {
+        switchView('schedule');
+      } else {
+        renderAll();
+      }
     }
 
     // Admin One-Click Quick Winner Pick / Toggle

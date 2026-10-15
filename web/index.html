@@ -736,10 +736,30 @@
 
       await fetchTournamentData();
 
-      // Setup 20-second background polling
-      setInterval(() => {
-        fetchTournamentData(false);
-      }, 20000);
+      // Smart Background Polling (60 sn + Ekran kapalıyken durdurma)
+      let pollTimer = null;
+      const POLLING_INTERVAL = 60000; // 60 saniye (Sıfır maliyet & pil dostu)
+
+      function startPolling() {
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = setInterval(() => {
+          if (!document.hidden) {
+            fetchTournamentData(false);
+          }
+        }, POLLING_INTERVAL);
+      }
+
+      startPolling();
+
+      // Sekmeye veya telefona geri dönüldüğünde anında taze veri çek
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          fetchTournamentData(false);
+          startPolling();
+        } else {
+          if (pollTimer) clearInterval(pollTimer);
+        }
+      });
     }
 
     // Fetch tournament data

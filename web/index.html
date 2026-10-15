@@ -72,25 +72,30 @@
 <body class="bg-[#0b0f17] text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white">
 
   <!-- ADMIN BAR (Only visible when Admin Mode is ON) -->
-  <div id="admin-banner" class="hidden sticky top-0 z-50 bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 border-b border-amber-600/40 text-amber-100 px-4 py-2.5 shadow-xl">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs">
-      <div class="flex items-center space-x-2">
-        <span class="inline-flex items-center px-2 py-0.5 rounded-full font-bold bg-amber-500 text-slate-950 text-[10px] uppercase tracking-wider">
-          👑 Yönetici Modu Aktif
+  <!-- ADMIN BAR (Only visible when Admin Mode is ON) -->
+  <div id="admin-banner" class="hidden sticky top-0 z-50 bg-gradient-to-r from-amber-950/95 via-slate-900 to-amber-950/95 border-b border-amber-500/40 text-amber-100 px-4 py-2.5 shadow-2xl backdrop-blur-md">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div class="flex items-center space-x-2.5">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-bold bg-amber-400 text-slate-950 text-[10px] uppercase tracking-wider shadow">
+          👑 Komite Paneli
         </span>
-        <span class="hidden sm:inline text-amber-200">Değişiklikler sitede anında güncellenir.</span>
+        <!-- DB Sync Status Indicator for Admins Only -->
+        <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-lg bg-black/50 border border-amber-500/30 text-[11px] font-mono text-amber-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>DB: <b id="admin-last-sync-time" class="text-white">Bağlı & Güncel</b></span>
+        </div>
       </div>
       <div class="flex items-center space-x-2">
-        <button onclick="openAnnouncementModal()" class="px-2.5 py-1 rounded bg-amber-800/80 hover:bg-amber-700 text-amber-200 border border-amber-600/50 flex items-center space-x-1 transition active:scale-95">
+        <button onclick="openAnnouncementModal()" class="px-2.5 py-1 rounded-lg bg-amber-900/80 hover:bg-amber-800 text-amber-200 border border-amber-600/50 flex items-center space-x-1 transition active:scale-95 font-medium">
           <span>📢</span><span>Duyuru Yaz</span>
         </button>
-        <button onclick="openWhatsAppModal()" class="px-2.5 py-1 rounded bg-emerald-800/80 hover:bg-emerald-700 text-emerald-100 border border-emerald-600/50 flex items-center space-x-1 transition active:scale-95">
+        <button onclick="openWhatsAppModal()" class="px-2.5 py-1 rounded-lg bg-emerald-900/80 hover:bg-emerald-800 text-emerald-100 border border-emerald-600/50 flex items-center space-x-1 transition active:scale-95 font-medium">
           <span>📱</span><span>WhatsApp Metni</span>
         </button>
-        <button onclick="openSyncModal()" class="px-2.5 py-1 rounded bg-slate-900/90 hover:bg-slate-800 text-slate-100 border border-slate-700 flex items-center space-x-1 transition active:scale-95 font-semibold">
-          <span>🚀</span><span>Kaydet & Yayınla</span>
+        <button onclick="openSyncModal()" class="px-3 py-1 rounded-lg bg-brand-600 hover:bg-brand-500 text-white shadow-md shadow-brand-500/20 flex items-center space-x-1.5 transition active:scale-95 font-bold">
+          <span>🚀</span><span>Canlıya Yayınla</span>
         </button>
-        <button onclick="exitAdminMode()" class="px-2.5 py-1 rounded bg-red-950 hover:bg-red-900 text-red-200 border border-red-700/60 transition active:scale-95">
+        <button onclick="exitAdminMode()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-red-950 text-slate-300 hover:text-red-200 border border-slate-700 hover:border-red-700/60 transition active:scale-95">
           Çıkış
         </button>
       </div>
@@ -98,55 +103,56 @@
   </div>
 
   <!-- MAIN HEADER -->
-  <header class="sticky top-0 z-40 bg-[#0b0f17]/90 backdrop-blur-md border-b border-slate-800/80">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+  <header class="sticky top-0 z-40 bg-[#090d16]/90 backdrop-blur-xl border-b border-slate-800/80 shadow-lg shadow-black/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
       
       <!-- Brand & Status -->
-      <div class="flex items-center space-x-3.5">
-        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-brand-600 to-teal-400 flex items-center justify-center text-2xl shadow-lg shadow-brand-500/25 ring-1 ring-white/15">
+      <div class="flex items-center space-x-3.5 min-w-0">
+        <!-- Modern Racket Crest -->
+        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-600 to-slate-900 flex items-center justify-center text-xl shadow-lg shadow-emerald-500/20 ring-1 ring-emerald-400/30 shrink-0">
           🏓
         </div>
-        <div>
+        <div class="min-w-0">
           <div class="flex items-center space-x-2">
-            <h1 id="tournament-title" class="font-extrabold text-base sm:text-xl text-white tracking-tight leading-tight">
-              Masa Tenisi Turnuvası
-            </h1>
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-400 font-mono hidden xs:inline">TOBB ETÜ SPOR SALONU</span>
           </div>
-          <div class="flex items-center space-x-2 text-xs text-slate-400 mt-0.5">
-            <span class="inline-flex items-center">
-              <span class="w-2 h-2 rounded-full bg-brand-400 pulse-dot mr-1.5"></span>
-              <span class="text-emerald-400 font-semibold">Canlı Fikstür</span>
+          <h1 id="tournament-title" class="font-extrabold text-sm sm:text-lg text-white tracking-tight leading-snug truncate">
+            TOBB ETÜ Masa Tenisi Turnuvası — Erkekler
+          </h1>
+          <div class="flex items-center space-x-2 mt-0.5">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot mr-1.5"></span>
+              Canlı Fikstür & Masalar
             </span>
-            <span class="text-slate-600">•</span>
-            <span id="last-updated-text" class="text-slate-400">Yükleniyor...</span>
+            <span class="text-slate-500 text-[10px] hidden md:inline">Otomatik canlı güncellenir</span>
           </div>
         </div>
       </div>
 
       <!-- Controls & Admin Toggle -->
-      <div class="flex items-center space-x-2 sm:space-x-3">
+      <div class="flex items-center space-x-2 sm:space-x-2.5 shrink-0">
         <!-- Gender Selectors -->
-        <div class="bg-slate-900/90 p-1 rounded-xl border border-slate-800 flex items-center text-xs font-semibold">
+        <div class="bg-slate-900/90 p-1 rounded-xl border border-slate-800/90 flex items-center text-xs font-semibold shadow-inner">
           <button id="tab-btn-E" onclick="switchGender('E')" class="px-3 py-1.5 rounded-lg bg-brand-600 text-white shadow-sm transition active:scale-95 flex items-center space-x-1.5">
             <span>Erkekler</span>
-            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-brand-800/80 text-brand-200">128</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-950/80 text-emerald-200 border border-emerald-500/30 font-bold">128</span>
           </button>
           <button id="tab-btn-K" onclick="switchGender('K')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition active:scale-95 flex items-center space-x-1.5">
             <span>Kadınlar</span>
-            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300">16</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300 font-medium">16</span>
           </button>
         </div>
 
         <!-- Refresh button -->
-        <button id="refresh-btn" onclick="fetchTournamentData(true)" title="Verileri Yenile" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 flex items-center transition active:scale-95">
+        <button id="refresh-btn" onclick="fetchTournamentData(true)" title="Canlı Verileri Yenile" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 flex items-center transition active:scale-95 shadow-sm">
           <svg id="refresh-icon" class="w-4 h-4 sm:mr-1.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
           </svg>
-          <span class="hidden sm:inline">Yenile</span>
+          <span class="hidden sm:inline font-medium">Yenile</span>
         </button>
 
         <!-- Admin Login Button -->
-        <button id="admin-login-btn" onclick="promptAdminLogin()" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-900 hover:bg-amber-950/40 border border-slate-800 hover:border-amber-600/40 text-xs text-amber-300 flex items-center transition active:scale-95 font-medium">
+        <button id="admin-login-btn" onclick="promptAdminLogin()" class="p-2 sm:px-3.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 border border-amber-500/30 hover:border-amber-500/50 text-xs text-amber-300 flex items-center transition active:scale-95 font-semibold shadow-sm">
           <span class="sm:mr-1.5">🔒</span>
           <span class="hidden sm:inline">Yönetim</span>
         </button>
@@ -159,60 +165,77 @@
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
 
     <!-- ANNOUNCEMENT BANNER -->
-    <div id="announcement-banner" class="hidden rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border border-amber-500/30 p-4 sm:p-5 shadow-lg shadow-amber-950/20">
-      <div class="flex items-start space-x-3.5">
-        <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-lg shrink-0 border border-amber-500/30">
+    <div id="announcement-banner" class="hidden rounded-2xl bg-gradient-to-r from-amber-500/15 via-slate-900/90 to-amber-500/10 border border-amber-500/30 p-4 sm:p-5 shadow-xl shadow-amber-950/20 backdrop-blur-md relative overflow-hidden">
+      <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
+      <div class="flex items-start space-x-3.5 relative z-10">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-xl shrink-0 border border-amber-500/30 shadow-inner">
           📢
         </div>
-        <div class="flex-grow">
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">Komite Canlı Duyurusu</span>
-            <span id="announcement-time" class="text-[11px] text-amber-300/70 font-mono"></span>
+        <div class="flex-grow min-w-0">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[11px] font-extrabold uppercase tracking-widest text-amber-400 font-mono flex items-center space-x-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+              <span>KOMİTE CANLI DUYURUSU</span>
+            </span>
           </div>
-          <p id="announcement-content" class="text-sm sm:text-base text-amber-100 font-medium mt-1 leading-relaxed"></p>
+          <p id="announcement-content" class="text-sm sm:text-base text-amber-100/95 font-medium mt-1 leading-relaxed"></p>
         </div>
       </div>
     </div>
 
     <!-- QUICK STATS BENTO -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-      <div class="glass-card rounded-2xl p-4 border border-slate-800/80">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      
+      <!-- Card 1: Toplam Maç -->
+      <div class="glass-card glass-card-hover rounded-2xl p-4 sm:p-5 border border-slate-800/80 bg-gradient-to-br from-slate-900/90 to-slate-950/70 shadow-lg relative overflow-hidden">
         <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
           <span>Toplam Maç</span>
-          <span class="text-slate-500">🏓</span>
+          <div class="w-7 h-7 rounded-lg bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-300 text-xs">🏓</div>
         </div>
-        <p id="stat-total-matches" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">-</p>
-        <p id="stat-players-count" class="text-[11px] text-slate-400 mt-1">- katılımcı</p>
+        <p id="stat-total-matches" class="text-3xl sm:text-4xl font-black text-white mt-2 tracking-tight">-</p>
+        <p id="stat-players-count" class="text-[11px] text-slate-400 mt-1 font-medium">- katılımcı</p>
       </div>
-      <div class="glass-card rounded-2xl p-4 border border-slate-800/80">
-        <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+
+      <!-- Card 2: Tamamlanan (with progress bar) -->
+      <div class="glass-card glass-card-hover rounded-2xl p-4 sm:p-5 border border-slate-800/80 bg-gradient-to-br from-emerald-950/20 via-slate-900/90 to-slate-950/70 shadow-lg relative overflow-hidden">
+        <div class="flex items-center justify-between text-emerald-400 text-xs font-semibold">
           <span>Tamamlanan</span>
-          <span class="text-emerald-400">✓</span>
+          <div class="w-7 h-7 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center text-emerald-300 text-xs font-bold">✓</div>
         </div>
-        <p id="stat-completed-matches" class="text-2xl sm:text-3xl font-extrabold text-emerald-400 mt-1">-</p>
-        <p id="stat-completed-percent" class="text-[11px] text-emerald-500/80 mt-1">%0 tamamlandı</p>
+        <p id="stat-completed-matches" class="text-3xl sm:text-4xl font-black text-emerald-400 mt-2 tracking-tight">-</p>
+        <div class="w-full bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden">
+          <div id="stat-progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-1.5 rounded-full transition-all duration-700" style="width: 0%"></div>
+        </div>
+        <p id="stat-completed-percent" class="text-[11px] text-emerald-400/90 mt-1.5 font-medium">%0 tamamlandı</p>
       </div>
-      <div class="glass-card rounded-2xl p-4 border border-slate-800/80">
+
+      <!-- Card 3: Canlı Oynanan -->
+      <div class="glass-card glass-card-hover rounded-2xl p-4 sm:p-5 border border-slate-800/80 bg-gradient-to-br from-teal-950/20 via-slate-900/90 to-slate-950/70 shadow-lg relative overflow-hidden">
         <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
           <span>Canlı Oynanan</span>
-          <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
+          <div class="w-7 h-7 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
+          </div>
         </div>
-        <p id="stat-live-matches" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">-</p>
-        <p id="stat-tables-active" class="text-[11px] text-slate-400 mt-1">masalarda</p>
+        <p id="stat-live-matches" class="text-3xl sm:text-4xl font-black text-white mt-2 tracking-tight">-</p>
+        <p id="stat-tables-active" class="text-[11px] text-emerald-400/90 mt-1 font-medium">masalarda canlı</p>
       </div>
-      <div class="glass-card rounded-2xl p-4 border border-slate-800/80">
-        <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+
+      <!-- Card 4: Kalan Maç -->
+      <div class="glass-card glass-card-hover rounded-2xl p-4 sm:p-5 border border-slate-800/80 bg-gradient-to-br from-amber-950/20 via-slate-900/90 to-slate-950/70 shadow-lg relative overflow-hidden">
+        <div class="flex items-center justify-between text-amber-300 text-xs font-semibold">
           <span>Kalan Maç</span>
-          <span class="text-amber-400">⏳</span>
+          <div class="w-7 h-7 rounded-lg bg-amber-950/80 border border-amber-500/40 flex items-center justify-center text-amber-300 text-xs">⏳</div>
         </div>
-        <p id="stat-remaining-matches" class="text-2xl sm:text-3xl font-extrabold text-amber-300 mt-1">-</p>
-        <p class="text-[11px] text-slate-400 mt-1">final yolunda</p>
+        <p id="stat-remaining-matches" class="text-3xl sm:text-4xl font-black text-amber-300 mt-2 tracking-tight">-</p>
+        <p class="text-[11px] text-amber-400/80 mt-1 font-medium">final yolunda</p>
       </div>
+
     </div>
 
     <!-- MAIN VIEW NAVIGATION TABS -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
-      <nav class="flex items-center space-x-1 sm:space-x-2 overflow-x-auto pb-1 sm:pb-0" id="view-tabs">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+      <nav class="flex items-center space-x-1 sm:space-x-2 overflow-x-auto p-1 rounded-2xl bg-slate-900/60 border border-slate-800/60 shrink-0" id="view-tabs">
         <button onclick="switchView('bracket')" id="tab-view-bracket" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-brand-600 text-white shadow-sm flex items-center space-x-2 transition active:scale-95 shrink-0">
           <span>🏆</span><span>Turnuva Ağacı</span>
         </button>
@@ -228,8 +251,8 @@
       </nav>
 
       <!-- Global Filter or Search inside view -->
-      <div class="relative w-full sm:w-64">
-        <input type="text" id="global-search-input" oninput="handleSearch(this.value)" placeholder="Oyuncu adı veya maç ara..." class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
+      <div class="relative w-full sm:w-72">
+        <input type="text" id="global-search-input" oninput="handleSearch(this.value)" placeholder="Oyuncu adı, maç ID veya masa ara..." class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-inner">
         <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
@@ -774,11 +797,16 @@
       // Title & Last updated
       $('#tournament-title').textContent = (currentGender === 'K' && tournamentData.women ? tournamentData.women.title : tournamentData.title) || 'Masa Tenisi Turnuvası';
       
-      if (tournamentData.last_updated) {
-        const d = new Date(tournamentData.last_updated);
-        $('#last-updated-text').textContent = d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) + ' güncellendi';
-      } else {
-        $('#last-updated-text').textContent = 'Canlı';
+      // Admin sync time display
+      if (tournamentData.last_updated && $('#admin-last-sync-time')) {
+        try {
+          const d = new Date(tournamentData.last_updated);
+          const timeStr = d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+          const dateStr = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+          $('#admin-last-sync-time').textContent = `${dateStr} ${timeStr}`;
+        } catch (_) {
+          $('#admin-last-sync-time').textContent = 'Senkronize';
+        }
       }
 
       // Announcement
@@ -817,13 +845,16 @@
       $('#stat-completed-matches').textContent = st.done || '0';
       const pct = st.total > 0 ? Math.round((st.done / st.total) * 100) : 0;
       $('#stat-completed-percent').textContent = `%${pct} tamamlandı`;
+      if ($('#stat-progress-bar')) {
+        $('#stat-progress-bar').style.width = pct + '%';
+      }
 
       // Live matches
       const allResults = Object.values(viewState.results || {});
       const liveCount = allResults.filter(r => r && r.status === 'in_progress').length;
       $('#stat-live-matches').textContent = liveCount;
-      const tables = tournamentData.tables || ['Masa 1', 'Masa 2'];
-      $('#stat-tables-active').textContent = `${tables.length} masada`;
+      const tables = tournamentData.tables || ['Masa 1', 'Masa 2', 'Masa 3', 'Masa 4'];
+      $('#stat-tables-active').textContent = `${tables.length} masada canlı`;
 
       const remaining = Math.max(0, (st.total || 0) - (st.done || 0));
       $('#stat-remaining-matches').textContent = remaining;

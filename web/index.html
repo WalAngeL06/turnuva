@@ -329,8 +329,7 @@
       </p>
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">Komite PIN Kodu:</label>
-        <input type="password" id="admin-pin-input" placeholder="PIN kodunu girin (Varsayılan: 1923)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-brand-500 font-mono tracking-widest">
-        <p class="text-[11px] text-slate-500 mt-1">İpucu: İlk kurulum için komite varsayılan PIN: <b>1923</b></p>
+        <input type="password" id="admin-pin-input" placeholder="Komite PIN kodunu girin" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-brand-500 font-mono tracking-widest">
       </div>
       <div class="flex justify-end space-x-2 pt-2">
         <button onclick="closeModal('admin-login-modal')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300">Vazgeç</button>
@@ -579,6 +578,7 @@
     let isAdmin = false;
     let activeEditMatch = null;
     let computedBracket = null;
+    let hideByes = false;
 
     const DATA_FILE_URL = 'data/turnuva_public.json';
     const GITHUB_REPO = 'Faruk-Ortakoyluoglu/turnuva';
@@ -816,6 +816,13 @@
         `;
       }
 
+      // Quick toggle for hiding BAYs
+      pillHtml += `
+        <button onclick="toggleHideByes()" class="ml-auto px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition active:scale-95 flex items-center space-x-1.5 ${hideByes ? 'bg-purple-900/60 text-purple-200 border border-purple-500/50 font-bold' : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'}">
+          <span>${hideByes ? '👁️ Tümünü Göster' : '🚫 BAY Olanları Gizle'}</span>
+        </button>
+      `;
+
       pillBox.innerHTML = pillHtml;
 
       // Render Match Cards
@@ -831,6 +838,11 @@
         if (computedBracket.third) matchesToRender.push(computedBracket.third);
       } else if (rounds[currentRoundIndex]) {
         matchesToRender = rounds[currentRoundIndex];
+      }
+
+      // Filter out empty BAY matches if hideByes is active
+      if (hideByes) {
+        matchesToRender = matchesToRender.filter(m => !(m.auto && (m.sides[0].type === 'bye' || m.sides[1].type === 'bye')));
       }
 
       // Filter by search query
@@ -852,6 +864,11 @@
       }
 
       grid.innerHTML = matchesToRender.map(m => renderMatchCard(m, pmap, R)).join('');
+    }
+
+    function toggleHideByes() {
+      hideByes = !hideByes;
+      renderBracket();
     }
 
     function setRoundFilter(r) {

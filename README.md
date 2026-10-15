@@ -30,8 +30,9 @@ Komite üyeleri (Faruk Başkan, Serdar, Arda vb.) turnuva değişikliklerini do�
    - **⏳ Maç Erteleme:** Maç durumu tek tıkla "Ertelendi" yapılır.
    - **📢 Canlı Duyuru Yayınlama:** Üst bardaki "Duyuru Yaz" ile sitenin tepesindeki anons bandına canlı mesaj basılır.
    - **📱 WhatsApp Eşleşme Metni:** Tur seçilerek tek tıkla formatlı ve emojili WhatsApp mesajı kopyalanır.
-   - **🚀 Canlı Kaydet & Yayınla:** 
-     - **GitHub API:** Bir defaya mahsus GitHub Personal Access Token (PAT) girilerek tek tıkla repoya push atılır; tüm oyuncuların ekranına saniyeler içinde yansır.
+   - **🚀 Sıfır Buton Canlı Bulut Senkronizasyonu & Kalıcı Kayıt:** 
+     - **⚡ Sıfır Buton Canlı Akış:** Yapılan her dokunuş (kart tıklama, saat, masa vb.) 0.5 saniyede salondaki tüm telefonlara otomatik olarak canlı akar; butona basmaya veya token girmeye gerek yoktur.
+     - **GitHub API (İsteğe Bağlı):** Turnuva sonunda repoya kalıcı snapshot commit'i atmak için kullanılabilir.
      - **JSON İndir / Yükle:** Çevrimdışı yedekleme için JSON indirilebilir ve yüklenebilir.
 
 ---
@@ -67,5 +68,6 @@ Tarayıcıda otomatik olarak `http://127.0.0.1:8765` açılır.
 | `index.html` | GitHub Pages ana canlı arayüzü (Modern Tailwind CSS, karanlık mod, responsive) |
 | `data/turnuva_public.json` | Herkese açık, KVKK uyumlu canlı turnuva ve fikstür verisi |
 | `web/logic.js` | Turnuva ağacı motoru (128 Erkekler, 16 Kadınlar, 3.lük maçı hesaplamaları) |
+| `web/sync.js` | Sıfır buton gerçek zamanlı bulut senkronizasyon motoru (MQTT WebSocket & PIN doğrulama) |
 | `turnuva.py` | Yerel Python HTTP sunucusu ve yedekleme sistemi |
 | `Turnuva.command` | macOS için çift tıkla çalıştırma betiği |

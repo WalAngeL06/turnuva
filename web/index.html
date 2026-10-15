@@ -81,13 +81,15 @@
         </span>
         <!-- DB Sync Status Indicator for Admins Only -->
         <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-lg bg-black/50 border border-amber-500/30 text-[11px] font-mono text-amber-200">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>DB: <b id="admin-last-sync-time" class="text-white">Bağlı & Güncel</b></span>
+          <span id="admin-sync-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Bulut: <b id="admin-sync-status" class="text-emerald-300">Canlı (0.5s) ⚡</b></span>
+          <span class="text-amber-500/40">|</span>
+          <span class="text-[10px] text-amber-300/80">Son İşlem: <b id="admin-last-sync-time" class="text-white">--:--</b></span>
         </div>
-        <!-- Quick Winner Tip -->
+        <!-- Zero-Button Tip -->
         <div class="hidden lg:inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-lg bg-black/40 border border-amber-500/20 text-[11px] text-amber-200/90">
           <span>⚡</span>
-          <span><b>Hızlı İşlem:</b> Karttaki oyuncu adına tıklayarak kazananı anında belirleyebilirsiniz</span>
+          <span><b>Sıfır Buton:</b> Maçlara ve saatlere yaptığınız her dokunuş salondaki tüm telefonlara 0.5 saniyede canlı akar.</span>
         </div>
       </div>
       <div class="flex items-center space-x-2">
@@ -125,11 +127,11 @@
             TOBB ETÜ Masa Tenisi Turnuvası — Erkekler
           </h1>
           <div class="flex items-center space-x-2 mt-0.5">
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot mr-1.5"></span>
-              Canlı Fikstür & Masalar
+            <span id="cloud-sync-badge" class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold transition-all shadow-sm">
+              <span id="cloud-sync-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot mr-1.5"></span>
+              <span id="cloud-sync-label">Canlı Bulut Senkron (0.5s)</span>
             </span>
-            <span class="text-slate-500 text-[10px] hidden md:inline">Otomatik canlı güncellenir</span>
+            <span class="text-slate-500 text-[10px] hidden md:inline">Anlık otomatik güncellenir</span>
           </div>
         </div>
       </div>
@@ -658,22 +660,35 @@
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div class="flex items-center space-x-2 text-brand-400">
           <span class="text-xl">🚀</span>
-          <h3 class="font-bold text-base text-white">Değişiklikleri Kaydet & Canlıya Yayınla</h3>
+          <h3 class="font-bold text-base text-white">Turnuva Veri Senkronizasyonu</h3>
         </div>
         <button onclick="closeModal('sync-modal')" class="text-slate-400 hover:text-white text-lg">✕</button>
       </div>
 
-      <!-- Option A: GitHub REST API Push -->
+      <!-- Zero-Button Real-Time Cloud Sync Banner -->
+      <div class="p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/90 via-slate-900 to-emerald-950/80 border border-emerald-500/40 text-emerald-200 text-xs flex items-start space-x-3 shadow-lg">
+        <span class="text-2xl mt-0.5">⚡</span>
+        <div class="space-y-1">
+          <div class="flex items-center space-x-2">
+            <span class="font-bold text-white text-xs">Sıfır Buton Bulut Senkronizasyonu Aktif!</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          </div>
+          <p class="text-slate-300 text-[11px] leading-relaxed">
+            Yaptığınız her dokunuş (kart tıklama, saat belirleme, masa atama, skor güncelleme) arka planda <b>0.5 saniyede</b> salondaki tüm telefonlara canlı olarak akmaktadır. Herhangi bir butona basmanıza gerek yoktur.
+          </p>
+        </div>
+      </div>
+
+      <!-- Option A: GitHub REST API Snapshot -->
       <div class="bg-slate-900/90 rounded-xl p-4 border border-brand-500/30 space-y-3">
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold text-brand-300 uppercase tracking-wider flex items-center space-x-1.5">
-            <span>🌐</span><span>Seçenek 1: GitHub'a Canlı Yayınla (Önerilen)</span>
+            <span>🌐</span><span>Seçenek 1: GitHub'a Kalıcı Commit At (İsteğe Bağlı)</span>
           </span>
-          <span class="text-[10px] px-2 py-0.5 rounded bg-brand-900/80 text-brand-300 font-semibold">Otomatik Commit</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-brand-900/80 text-brand-300 font-semibold">Kalıcı Arşiv</span>
         </div>
         <p class="text-xs text-slate-300 leading-relaxed">
-          GitHub Personal Access Token (PAT) girerseniz, değişiklikleriniz doğrudan repoya pushlanır ve GitHub Pages'teki tüm oyuncuların telefonlarına anında yansır.
-        </p>
+          Günün sonunda veya turnuva tamamlandığında sonuçları doğrudan GitHub reposuna kalıcı bir commit olarak kaydetmek isterseniz Token ile push atabilirsiniz:
         <div>
           <label class="block text-[11px] font-semibold text-slate-400 mb-1">GitHub Token (Tarayıcınızda güvende saklanır):</label>
           <input type="password" id="github-token-input" placeholder="ghp_xxxxxxxxxxxx" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white font-mono">
@@ -713,8 +728,13 @@
     <span id="toast-msg">İşlem başarılı</span>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+  <script>if (typeof Paho === 'undefined') { document.write('<script src="web/paho-mqtt.min.js"><\/script>'); }</script>
+  <script>if (typeof Paho === 'undefined') { document.write('<script src="paho-mqtt.min.js"><\/script>'); }</script>
   <script src="web/logic.js"></script>
   <script>if (typeof TL === 'undefined') { document.write('<script src="logic.js"><\/script>'); }</script>
+  <script src="web/sync.js"></script>
+  <script>if (typeof CloudSync === 'undefined') { document.write('<script src="sync.js"><\/script>'); }</script>
 
   <!-- MAIN SCRIPT -->
   <script>
@@ -803,6 +823,9 @@
 
       await fetchTournamentData();
 
+      // Zero-Button Real-Time Cloud Synchronization
+      initCloudSync();
+
       // Smart Background Polling (60 sn + Ekran kapalıyken durdurma)
       let pollTimer = null;
       const POLLING_INTERVAL = 60000; // 60 saniye (Sıfır maliyet & pil dostu)
@@ -825,6 +848,55 @@
           startPolling();
         } else {
           if (pollTimer) clearInterval(pollTimer);
+        }
+      });
+    }
+
+    function updateCloudSyncUI(status, details) {
+      const badge = $('#cloud-sync-badge');
+      const dot = $('#cloud-sync-dot');
+      const label = $('#cloud-sync-label');
+      const adminDot = $('#admin-sync-dot');
+      const adminStatus = $('#admin-sync-status');
+
+      if (status === 'connected') {
+        if (badge) badge.className = 'inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold transition-all shadow-sm';
+        if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot mr-1.5';
+        if (label) label.textContent = 'Canlı Bulut Senkron (0.5s)';
+        if (adminDot) adminDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        if (adminStatus) adminStatus.textContent = 'Canlı (0.5s) ⚡';
+      } else if (status === 'connecting') {
+        if (badge) badge.className = 'inline-flex items-center px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-semibold transition-all shadow-sm';
+        if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping mr-1.5';
+        if (label) label.textContent = 'Bulut Bağlanıyor...';
+        if (adminDot) adminDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-ping';
+        if (adminStatus) adminStatus.textContent = 'Bağlanıyor...';
+      } else {
+        if (badge) badge.className = 'inline-flex items-center px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-400 text-[10px] font-semibold transition-all shadow-sm';
+        if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-slate-500 mr-1.5';
+        if (label) label.textContent = 'Çevrimdışı (Yerel Mod)';
+        if (adminDot) adminDot.className = 'w-2 h-2 rounded-full bg-slate-500';
+        if (adminStatus) adminStatus.textContent = 'Çevrimdışı';
+      }
+    }
+
+    function initCloudSync() {
+      if (typeof CloudSync === 'undefined') return;
+
+      CloudSync.init({
+        getAdminPin: () => getAdminPin()
+      });
+
+      CloudSync.onStatusChange((status, details) => {
+        updateCloudSyncUI(status, details);
+      });
+
+      CloudSync.onRemoteUpdate((incomingState, timestamp) => {
+        if (!tournamentData || !tournamentData.last_updated || (timestamp && timestamp > tournamentData.last_updated)) {
+          tournamentData = incomingState;
+          localStorage.setItem('turnuva_offline_data', JSON.stringify(tournamentData));
+          renderAll();
+          showToast('⚡ Canlı Güncelleme: Skorlar ve masalar anında güncellendi!', 'info');
         }
       });
     }
@@ -2198,11 +2270,31 @@
       }
     }
 
-    // Save offline and refresh
+    // Save offline and refresh + Zero-Button Instant Cloud Broadcast
     function saveOfflineAndRefresh(toastMsg) {
       localStorage.setItem('turnuva_offline_data', JSON.stringify(tournamentData));
       renderAll();
       showToast(toastMsg, 'success');
+
+      // ZERO-BUTTON INSTANT CLOUD BROADCAST
+      if (isAdmin && typeof CloudSync !== 'undefined') {
+        const publicData = sanitizeForPublic(tournamentData);
+        publicData.last_updated = tournamentData.last_updated || new Date().toISOString();
+
+        CloudSync.broadcast(publicData, getAdminPin())
+          .then((sent) => {
+            const adminStatus = $('#admin-sync-status');
+            if (adminStatus && sent) {
+              adminStatus.textContent = 'Aktarıldı 🚀';
+              setTimeout(() => {
+                if (CloudSync.isConnected()) adminStatus.textContent = 'Canlı (0.5s) ⚡';
+              }, 2000);
+            }
+          })
+          .catch((err) => {
+            console.warn('Cloud broadcast notice:', err);
+          });
+      }
     }
 
     // Modal open for Sync

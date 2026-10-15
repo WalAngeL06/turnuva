@@ -587,7 +587,8 @@
     let hideByes = false;
 
     const DATA_FILE_URL = 'data/turnuva_public.json';
-    const GITHUB_REPO = 'Faruk-Ortakoyluoglu/turnuva';
+    const GITHUB_REPOS = ['WalAngeL06/turnuva', 'Faruk-Ortakoyluoglu/turnuva'];
+    const GITHUB_REPO = 'WalAngeL06/turnuva';
     const GITHUB_BRANCH = 'main';
 
     // Helpers
@@ -1447,7 +1448,7 @@
         text += '\n';
       });
 
-      text += `\n🌐 *Canlı Fikstür & Masalar:* https://${GITHUB_REPO.split('/')[0].toLowerCase()}.github.io/${GITHUB_REPO.split('/')[1]}`;
+      text += `\n🌐 *Canlı Fikstür & Masalar:* https://turnuva-eight.vercel.app`;
       $('#whatsapp-text-output').value = text;
     }
 
@@ -1510,51 +1511,63 @@
         publicData.last_updated = new Date().toISOString();
         const jsonContent = JSON.stringify(publicData, null, 2);
 
-        const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${DATA_FILE_URL}`;
-
-        // Get current SHA
-        let sha = null;
-        try {
-          const getRes = await fetch(apiUrl, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/vnd.github.v3+json',
-            }
-          });
-          if (getRes.ok) {
-            const fileInfo = await getRes.json();
-            sha = fileInfo.sha;
-          }
-        } catch (_) {}
-
-        // Commit and PUT
         const utf8Bytes = new TextEncoder().encode(jsonContent);
         let binary = '';
         for (let i = 0; i < utf8Bytes.length; i++) binary += String.fromCharCode(utf8Bytes[i]);
         const base64Content = btoa(binary);
 
-        const putRes = await fetch(apiUrl, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            message: `🏓 Turnuva Güncellemesi: ${new Date().toLocaleTimeString('tr-TR')}`,
-            content: base64Content,
-            branch: GITHUB_BRANCH,
-            sha: sha || undefined
-          })
-        });
+        let successCount = 0;
+        let lastError = null;
 
-        if (!putRes.ok) {
-          const errData = await putRes.json();
-          throw new Error(errData.message || 'GitHub API hatası');
+        for (const repo of GITHUB_REPOS) {
+          try {
+            const apiUrl = `https://api.github.com/repos/${repo}/contents/${DATA_FILE_URL}`;
+            let sha = null;
+            try {
+              const getRes = await fetch(apiUrl, {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Accept': 'application/vnd.github.v3+json',
+                }
+              });
+              if (getRes.ok) {
+                const fileInfo = await getRes.json();
+                sha = fileInfo.sha;
+              }
+            } catch (_) {}
+
+            const putRes = await fetch(apiUrl, {
+              method: 'PUT',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                message: `🏓 Turnuva Güncellemesi: ${new Date().toLocaleTimeString('tr-TR')}`,
+                content: base64Content,
+                branch: GITHUB_BRANCH,
+                sha: sha || undefined
+              })
+            });
+
+            if (putRes.ok) {
+              successCount++;
+            } else {
+              const errData = await putRes.json().catch(() => ({}));
+              lastError = `${repo}: ${errData.message || putRes.statusText}`;
+            }
+          } catch (e) {
+            lastError = `${repo}: ${e.message}`;
+          }
         }
 
-        closeModal('sync-modal');
-        showToast('GitHub\'a canlı yayınlandı! Sitedeki herkes birkaç saniye içinde görecek 🚀', 'success');
+        if (successCount > 0) {
+          closeModal('sync-modal');
+          showToast(`GitHub'a başarıyla yayınlandı! (${successCount} repo güncellendi) 🚀`, 'success');
+        } else {
+          throw new Error(lastError || 'GitHub API hatası');
+        }
       } catch (err) {
         console.error('GitHub Push Hatası:', err);
         showToast('Yayınlanamadı: ' + err.message, 'error');

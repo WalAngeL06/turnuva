@@ -1,0 +1,13 @@
+# Turnuva verisi: katılımcıların telefon numaraları içerir, depoya girmez
+kayit.json
+kayit.json.tmp
+yedekler/
+*.csv
+*.xlsx
+*.vcf
+
+# Sistem / Python
+__pycache__/
+*.pyc
+.DS_Store
+.claude/

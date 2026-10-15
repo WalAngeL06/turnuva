@@ -859,6 +859,25 @@
     const $ = (sel) => document.querySelector(sel);
     const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
+    const STANDARD_MATCH_HOURS = [
+      '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', 
+      '14:00', '14:15', '14:30', '14:45', '15:00', '15:15', '15:30', '15:45', 
+      '16:00', '16:15', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'
+    ];
+
+    function getMatchResult(m) {
+      if (!m) return {};
+      if (m.result) return m.result;
+      if (!tournamentData) return {};
+      try {
+        const vs = TL.viewOf(tournamentData, currentGender);
+        if (vs && vs.results && m.id && vs.results[m.id]) {
+          return vs.results[m.id];
+        }
+      } catch (e) {}
+      return {};
+    }
+
     function getAdminPin() {
       return localStorage.getItem('turnuva_custom_pin') || '1923';
     }
@@ -1407,7 +1426,7 @@
     }
 
     function renderTreeNode(m, pmap, R, query = '') {
-      const res = m.result || {};
+      const res = getMatchResult(m);
       const status = res.status || (m.winner && m.winner.type === 'player' ? 'completed' : (res.scores ? 'in_progress' : 'scheduled'));
       const s1 = m.sides[0];
       const s2 = m.sides[1];
@@ -1611,7 +1630,7 @@
     }
 
     function renderMatchCard(m, pmap, R) {
-      const res = m.result || {};
+      const res = getMatchResult(m);
       const status = res.status || (m.winner && m.winner.type === 'player' ? 'completed' : (res.scores ? 'in_progress' : 'scheduled'));
       const time = res.time || '';
       const table = res.table || '';
@@ -1739,7 +1758,7 @@
         // Exclude bye matches
         if (m.auto && (m.sides[0].type === 'bye' || m.sides[1].type === 'bye')) return false;
 
-        const res = m.result || {};
+        const res = getMatchResult(m);
         if (currentScheduleDateFilter === 'unscheduled') {
           return !res.time && m.playable && (!m.winner || m.winner.type !== 'player');
         } else if (currentScheduleDateFilter === 'all') {
@@ -1780,7 +1799,8 @@
       // Group matches by time
       const timeGroups = {};
       list.forEach(m => {
-        const t = (m.result && m.result.time) ? m.result.time : 'Saat Belirlenmedi';
+        const res = getMatchResult(m);
+        const t = (res && res.time) ? res.time : 'Saat Belirlenmedi';
         if (!timeGroups[t]) timeGroups[t] = [];
         timeGroups[t].push(m);
       });
@@ -1820,7 +1840,7 @@
     }
 
     function renderScheduleMatchCard(m, pmap) {
-      const res = m.result || {};
+      const res = getMatchResult(m);
       const status = res.status || (m.winner && m.winner.type === 'player' ? 'completed' : (res.scores ? 'in_progress' : 'scheduled'));
       const s1 = m.sides[0];
       const s2 = m.sides[1];
@@ -1889,11 +1909,13 @@
               <div class="flex items-center space-x-1 min-w-0">
                 <select onchange="updateMatchTimeDirectly('${m.id}', this.value)" class="bg-slate-950 text-amber-300 border border-amber-500/40 text-[10px] font-mono rounded px-1.5 py-0.5 focus:outline-none truncate" title="Doğrudan Maç Saati Seç">
                   <option value="">(Saat Seç)</option>
-                  ${['15:00', '15:15', '15:30', '15:45', '16:00', '16:15', '16:30', '18:30', '18:45', '19:00', '19:30', '20:00'].map(t => `<option value="${t}" ${res.time === t ? 'selected' : ''}>${t}</option>`).join('')}
+                  ${STANDARD_MATCH_HOURS.map(t => `<option value="${t}" ${res.time === t ? 'selected' : ''}>${t}</option>`).join('')}
+                  ${res.time && !STANDARD_MATCH_HOURS.includes(res.time) ? `<option value="${res.time}" selected>${res.time}</option>` : ''}
                 </select>
                 <select onchange="updateMatchTableDirectly('${m.id}', this.value)" class="bg-slate-950 text-slate-300 border border-slate-700 text-[10px] font-sans rounded px-1 py-0.5 focus:outline-none truncate" title="Masa Ata">
                   <option value="">(Masa Yok)</option>
                   ${['Masa 1', 'Masa 2', 'Masa 3', 'Masa 4', 'Masa 5'].map(t => `<option value="${t}" ${res.table === t ? 'selected' : ''}>${t}</option>`).join('')}
+                  ${res.table && !['Masa 1', 'Masa 2', 'Masa 3', 'Masa 4', 'Masa 5'].includes(res.table) ? `<option value="${res.table}" selected>${res.table}</option>` : ''}
                 </select>
               </div>
               <button onclick="openMatchEditModal('${m.id}')" class="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[9px] font-bold shrink-0 flex items-center space-x-1 transition active:scale-95">
@@ -1920,7 +1942,9 @@
       if (!match) return;
 
       const res = Object.assign({}, viewState.results[mid] || {});
-      res.players = [match.sides[0].id, match.sides[1].id].filter(Boolean);
+      if (match.sides[0] && match.sides[1] && match.sides[0].id && match.sides[1].id) {
+        res.players = [match.sides[0].id, match.sides[1].id];
+      }
       if (newTime) {
         res.time = newTime;
         if (!res.date) res.date = '16 Ekim Cuma';
@@ -1929,7 +1953,12 @@
         delete res.time;
       }
 
-      viewState.results[mid] = res;
+      if (!res.time && !res.table && !res.winner && (!res.scores || !Object.keys(res.scores).length)) {
+        delete viewState.results[mid];
+      } else {
+        viewState.results[mid] = res;
+      }
+
       tournamentData.last_updated = new Date().toISOString();
       saveOfflineAndRefresh(newTime ? `Maç saati ${newTime} olarak güncellendi 🕒` : 'Maç saati kaldırıldı');
     }
@@ -1944,7 +1973,9 @@
       if (!match) return;
 
       const res = Object.assign({}, viewState.results[mid] || {});
-      res.players = [match.sides[0].id, match.sides[1].id].filter(Boolean);
+      if (match.sides[0] && match.sides[1] && match.sides[0].id && match.sides[1].id) {
+        res.players = [match.sides[0].id, match.sides[1].id];
+      }
       if (newTable) {
         res.table = newTable;
         if (!res.status) res.status = 'scheduled';
@@ -1952,7 +1983,12 @@
         delete res.table;
       }
 
-      viewState.results[mid] = res;
+      if (!res.time && !res.table && !res.winner && (!res.scores || !Object.keys(res.scores).length)) {
+        delete viewState.results[mid];
+      } else {
+        viewState.results[mid] = res;
+      }
+
       tournamentData.last_updated = new Date().toISOString();
       saveOfflineAndRefresh(newTable ? `${newTable} atandı 🏓` : 'Masa ataması kaldırıldı');
     }
@@ -1965,7 +2001,7 @@
       // Filter matches with time
       let list = allMatches.filter(m => {
         if (m.auto && (m.sides[0].type === 'bye' || m.sides[1].type === 'bye')) return false;
-        const res = m.result;
+        const res = getMatchResult(m);
         return res && Boolean(res.time);
       });
 
@@ -1977,7 +2013,8 @@
       // Group by time
       const timeGroups = {};
       list.forEach(m => {
-        const t = (m.result && m.result.time) ? m.result.time : 'Belirtilmedi';
+        const res = getMatchResult(m);
+        const t = (res && res.time) ? res.time : 'Belirtilmedi';
         if (!timeGroups[t]) timeGroups[t] = [];
         timeGroups[t].push(m);
       });
@@ -2064,7 +2101,8 @@
 
         const idLower = m.id.toLocaleLowerCase();
         const matchPart = (m.id.split('-')[1] || '').toLocaleLowerCase();
-        const matchNumStr = m.result && m.result.matchNum ? String(m.result.matchNum) : '';
+        const res = getMatchResult(m);
+        const matchNumStr = res.matchNum ? String(res.matchNum) : '';
         const indexStr = String(m.m + 1);
 
         if (idLower === q || matchPart === q || matchNumStr === q || indexStr === q || idLower.includes(q)) {
@@ -2095,14 +2133,8 @@
         return;
       }
 
-      const standardHours = [
-        '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', 
-        '14:00', '14:15', '14:30', '14:45', '15:00', '15:15', '15:30', '15:45', 
-        '16:00', '16:15', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'
-      ];
-
       resBox.innerHTML = matches.slice(0, 3).map(m => {
-        const res = m.result || {};
+        const res = getMatchResult(m);
         const p1 = getSideName(m.sides[0], pmap);
         const p2 = getSideName(m.sides[1], pmap);
         const hasTime = Boolean(res.time);
@@ -2143,7 +2175,8 @@
               <div class="flex items-center space-x-2">
                 <select onchange="updateMatchTimeDirectly('${m.id}', this.value); handleAdminLookupInput('${rawQuery}')" class="flex-1 px-3 py-2 rounded-xl bg-slate-950 border ${hasTime ? 'border-emerald-500 text-emerald-300' : 'border-indigo-500 text-amber-300'} font-mono font-bold text-sm focus:outline-none shadow-inner cursor-pointer">
                   <option value="">-- Saat Seçin --</option>
-                  ${standardHours.map(t => `<option value="${t}" ${res.time === t ? 'selected' : ''}>${t}</option>`).join('')}
+                  ${STANDARD_MATCH_HOURS.map(t => `<option value="${t}" ${res.time === t ? 'selected' : ''}>${t}</option>`).join('')}
+                  ${res.time && !STANDARD_MATCH_HOURS.includes(res.time) ? `<option value="${res.time}" selected>${res.time}</option>` : ''}
                 </select>
                 ${hasTime ? `
                   <button onclick="updateMatchTimeDirectly('${m.id}', ''); handleAdminLookupInput('${rawQuery}')" class="px-2.5 py-2 rounded-xl bg-red-950/80 hover:bg-red-900 text-red-200 border border-red-700/50 text-xs font-bold transition active:scale-95 shrink-0" title="Saati Kaldır">
@@ -2178,7 +2211,7 @@
       let list = allMatches.filter(m => {
         if (m.auto && (m.sides[0].type === 'bye' || m.sides[1].type === 'bye')) return false;
         if (adminScheduleRound !== -1 && m.r !== adminScheduleRound) return false;
-        const res = m.result || {};
+        const res = getMatchResult(m);
         if (adminScheduleStatus === 'scheduled' && !res.time) return false;
         if (adminScheduleStatus === 'unscheduled' && res.time) return false;
         return true;
@@ -2195,14 +2228,8 @@
         return;
       }
 
-      const standardHours = [
-        '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', 
-        '14:00', '14:15', '14:30', '14:45', '15:00', '15:15', '15:30', '15:45', 
-        '16:00', '16:15', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'
-      ];
-
       container.innerHTML = list.map(m => {
-        const res = m.result || {};
+        const res = getMatchResult(m);
         const p1 = getSideName(m.sides[0], pmap);
         const p2 = getSideName(m.sides[1], pmap);
         const hasTime = Boolean(res.time);
@@ -2227,7 +2254,8 @@
               ${hasTime ? `<span class="text-xs font-mono font-bold text-emerald-400 px-2 py-1 rounded bg-emerald-950 border border-emerald-500/40">⏰ ${res.time}</span>` : `<span class="text-[11px] text-slate-500 font-mono">Saat atanmadı</span>`}
               <select onchange="updateMatchTimeDirectly('${m.id}', this.value)" class="px-2.5 py-1.5 rounded-lg bg-slate-950 border ${hasTime ? 'border-emerald-500/50 text-emerald-300' : 'border-slate-700 text-slate-300'} font-mono font-bold text-xs focus:outline-none cursor-pointer">
                 <option value="">(Saat Değiştir)</option>
-                ${standardHours.map(t => `<option value="${t}" ${res.time === t ? 'selected' : ''}>${t}</option>`).join('')}
+                ${STANDARD_MATCH_HOURS.map(t => `<option value="${t}" ${res.time === t ? 'selected' : ''}>${t}</option>`).join('')}
+                ${res.time && !STANDARD_MATCH_HOURS.includes(res.time) ? `<option value="${res.time}" selected>${res.time}</option>` : ''}
               </select>
               ${hasTime ? `
                 <button onclick="updateMatchTimeDirectly('${m.id}', '')" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-red-950 hover:text-red-300 text-slate-400 flex items-center justify-center text-xs transition" title="Saati Kaldır">✕</button>
@@ -2490,7 +2518,7 @@
 
       activeEditMatch = match;
       const pmap = TL.participantMap(tournamentData);
-      const res = match.result || {};
+      const res = getMatchResult(match);
 
       $('#edit-modal-round-tag').textContent = match.isThird ? '3.lük Maçı' : TL.roundName(match.r, computedBracket.R);
       $('#edit-modal-title').textContent = `Maç #${match.id} Düzenleme`;

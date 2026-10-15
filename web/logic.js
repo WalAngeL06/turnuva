@@ -52,8 +52,8 @@
   /* Sonuç bu iki oyuncunun maçına mı ait? (Eski kayıtlarda players yoksa kabul edilir.) */
   function samePair(res, a, b) {
     const p = res && res.players;
-    if (!Array.isArray(p)) return true;
-    return p.length === 2 && ((p[0] === a && p[1] === b) || (p[0] === b && p[1] === a));
+    if (!Array.isArray(p) || p.length < 2) return true;
+    return (p[0] === a && p[1] === b) || (p[0] === b && p[1] === a);
   }
 
   const isNum = (v) => v != null && String(v).trim() !== '' && !isNaN(Number(v));
@@ -61,13 +61,15 @@
   /* Bir maçın iki tarafına ve kayıtlı sonucuna bakarak kazananı belirler. */
   function resolveMatch(id, a, b, res) {
     const match = { id, sides: [a, b], winner: PENDING, loser: PENDING,
-      playable: false, auto: false, result: null };
+      playable: false, auto: false, result: res || null };
     if (a.type === 'player' && b.type === 'player') {
       match.playable = true;
-      if (res && samePair(res, a.id, b.id) && (res.winner === a.id || res.winner === b.id)) {
+      if (res && samePair(res, a.id, b.id)) {
         match.result = res;
-        match.winner = res.winner === a.id ? a : b;
-        match.loser = res.winner === a.id ? b : a;
+        if (res.winner === a.id || res.winner === b.id) {
+          match.winner = res.winner === a.id ? a : b;
+          match.loser = res.winner === a.id ? b : a;
+        }
       }
     } else if (a.type === 'bye' && b.type === 'bye') {
       match.winner = BYE; match.loser = BYE; match.auto = true;
@@ -133,20 +135,26 @@
     for (const key of Object.keys(state.results)) {
       const mt = br.byId.get(key);
       const res = state.results[key];
-      if (!mt || !mt.playable || !samePair(res, mt.sides[0].id, mt.sides[1].id)) {
+      if (!mt) {
         delete state.results[key]; removed++; continue;
       }
-      const ids = [mt.sides[0].id, mt.sides[1].id];
-      if (res.scores) {
+      if (mt.playable && !samePair(res, mt.sides[0].id, mt.sides[1].id)) {
+        delete state.results[key]; removed++; continue;
+      }
+      const ids = mt.sides && mt.sides[0] && mt.sides[1] && mt.sides[0].id && mt.sides[1].id ? [mt.sides[0].id, mt.sides[1].id] : [];
+      if (res.scores && ids.length) {
         for (const k of Object.keys(res.scores)) {
           if (!ids.includes(k) || res.scores[k] === '' || res.scores[k] == null) delete res.scores[k];
         }
         if (!Object.keys(res.scores).length) delete res.scores;
       }
-      if (res.winner && !ids.includes(res.winner)) {
+      if (res.winner && ids.length && !ids.includes(res.winner)) {
         delete state.results[key]; removed++; continue;
       }
-      if (!res.winner && !res.scores) { delete state.results[key]; continue; }
+      // Saat, masa, tarih, durum veya skor varsa koru; hiçbiri yoksa sil
+      if (!res.winner && !res.scores && !res.time && !res.table && !res.date && !res.status) {
+        delete state.results[key]; continue;
+      }
     }
     return removed;
   }
@@ -160,14 +168,19 @@
     const [a, b] = [mt.sides[0].id, mt.sides[1].id];
     const res = state.results[mid];
     if (res && res.winner === pid) {
-      delete state.results[mid];
+      delete res.winner;
+      if (!res.scores && !res.time && !res.table && !res.date && !res.status) {
+        delete state.results[mid];
+      }
     } else {
-      const next = { players: [a, b], winner: pid };
+      const next = Object.assign({}, res || {}, { players: [a, b], winner: pid });
       // Skorlar yeni kazananla çelişmiyorsa korunur (ör. 3-1 iken kaybedene tıklanırsa silinir)
       const sc = res && res.scores;
       const other = pid === a ? b : a;
       if (sc && !(isNum(sc[pid]) && isNum(sc[other]) && Number(sc[pid]) < Number(sc[other]))) {
         next.scores = Object.assign({}, sc);
+      } else {
+        delete next.scores;
       }
       state.results[mid] = next;
     }
@@ -199,7 +212,7 @@
       delete res.auto;
     }
     if (!Object.keys(res.scores).length) delete res.scores;
-    if (!res.winner && !res.scores) delete state.results[mid];
+    if (!res.winner && !res.scores && !res.time && !res.table && !res.date && !res.status) delete state.results[mid];
     else state.results[mid] = res;
     normalize(state);
     return true;

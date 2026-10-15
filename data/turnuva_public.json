@@ -1,6 +1,6 @@
 {
  "version": 1,
- "title": "TOBB ETÜ Masa Tenisi Turnuvası — Erkekler",
+ "title": "Masa Tenisi Turnuvası — Erkekler",
  "participants": [
   {
    "id": "p001",
@@ -1002,79 +1002,92 @@
    "id": "p137",
    "name": "Faruk Ortaköylüoğlu",
    "gender": "E",
-   "check": false
+   "check": false,
+   "src": ""
   },
   {
    "id": "p138",
    "name": "Muhsin Sami Tosun",
    "gender": "E",
-   "check": false
+   "check": false,
+   "src": ""
   },
   {
    "id": "p139",
    "name": "Arda Onat Acar",
    "gender": "E",
-   "check": false
+   "check": false,
+   "src": ""
   },
   {
    "id": "p140",
    "name": "Hasan Roma",
    "gender": "E",
-   "check": false
+   "check": false,
+   "src": ""
   },
   {
    "id": "p141",
    "name": "Talha Tanrıkulu",
    "gender": "E",
-   "check": false
+   "check": false,
+   "src": ""
   },
   {
    "id": "p142",
    "name": "Abdullah Arda Gündoğdu",
    "gender": "E",
-   "check": false
+   "check": false,
+   "src": ""
   },
   {
    "id": "p143",
    "name": "Zeynep Yaren Yıldırıcı",
    "gender": "K",
-   "check": false
+   "check": false,
+   "src": ""
   },
   {
    "id": "p144",
    "name": "Şevval Kocabaş",
    "gender": "K",
-   "check": false
+   "check": false,
+   "src": ""
   },
   {
    "id": "p145",
    "name": "Elif Babacan",
    "gender": "K",
-   "check": false
+   "check": false,
+   "src": ""
   },
   {
    "id": "p146",
    "name": "Serdar Arif Çınar",
    "gender": "E",
-   "check": false
+   "check": false,
+   "src": ""
   },
   {
    "id": "p147",
    "name": "Ege Kasapoğlu",
    "gender": "E",
-   "check": false
+   "check": false,
+   "src": ""
   },
   {
    "id": "p148",
    "name": "Tuna Gürel",
    "gender": "E",
-   "check": false
+   "check": false,
+   "src": ""
   },
   {
    "id": "p149",
    "name": "Efe Özmal",
    "gender": "E",
-   "check": false
+   "check": false,
+   "src": ""
   }
  ],
  "slots": [
@@ -1218,9 +1231,7 @@
     "p104": "0"
    },
    "winner": "p117",
-   "auto": true,
-   "table": "Masa 1",
-   "status": "completed"
+   "auto": true
   },
   "R0-15": {
    "players": [
@@ -1232,9 +1243,7 @@
     "p106": "0"
    },
    "winner": "p068",
-   "auto": true,
-   "table": "Masa 2",
-   "status": "completed"
+   "auto": true
   },
   "R0-16": {
    "players": [
@@ -1246,9 +1255,7 @@
     "p019": "1"
    },
    "winner": "p003",
-   "auto": true,
-   "table": "Masa 3",
-   "status": "completed"
+   "auto": true
   },
   "R0-14": {
    "players": [
@@ -1260,9 +1267,7 @@
     "p046": "0"
    },
    "winner": "p109",
-   "auto": true,
-   "table": "Masa 4",
-   "status": "completed"
+   "auto": true
   },
   "R0-19": {
    "players": [
@@ -1274,9 +1279,7 @@
     "p059": "0"
    },
    "winner": "p091",
-   "auto": true,
-   "table": "Masa 1",
-   "status": "completed"
+   "auto": true
   },
   "R0-3": {
    "players": [
@@ -1288,9 +1291,7 @@
     "p122": "0"
    },
    "winner": "p067",
-   "auto": true,
-   "table": "Masa 2",
-   "status": "completed"
+   "auto": true
   },
   "R0-5": {
    "players": [
@@ -1302,9 +1303,7 @@
     "p021": "0"
    },
    "winner": "p118",
-   "auto": true,
-   "table": "Masa 3",
-   "status": "completed"
+   "auto": true
   },
   "R0-8": {
    "players": [
@@ -1316,9 +1315,7 @@
     "p027": "0"
    },
    "winner": "p081",
-   "auto": true,
-   "table": "Masa 4",
-   "status": "completed"
+   "auto": true
   },
   "R0-11": {
    "players": [
@@ -1330,9 +1327,7 @@
     "p075": "0"
    },
    "winner": "p108",
-   "auto": true,
-   "table": "Masa 1",
-   "status": "completed"
+   "auto": true
   },
   "R0-12": {
    "players": [
@@ -1344,9 +1339,7 @@
     "p111": "0"
    },
    "winner": "p065",
-   "auto": true,
-   "table": "Masa 2",
-   "status": "completed"
+   "auto": true
   },
   "R0-13": {
    "players": [
@@ -1358,9 +1351,7 @@
     "p116": "0"
    },
    "winner": "p032",
-   "auto": true,
-   "table": "Masa 3",
-   "status": "completed"
+   "auto": true
   },
   "R0-0": {
    "players": [
@@ -1372,9 +1363,7 @@
     "p141": "0"
    },
    "winner": "p110",
-   "auto": true,
-   "table": "Masa 4",
-   "status": "completed"
+   "auto": true
   },
   "R0-17": {
    "players": [
@@ -1386,69 +1375,505 @@
     "p095": "0"
    },
    "winner": "p094",
-   "auto": true,
-   "table": "Masa 1",
-   "status": "completed"
+   "auto": true
+  },
+  "R0-21": {
+   "players": [
+    "p020",
+    "p107"
+   ],
+   "scores": {
+    "p107": "2",
+    "p020": "0"
+   },
+   "winner": "p107",
+   "auto": true
+  },
+  "R0-26": {
+   "players": [
+    "p127",
+    "p114"
+   ],
+   "scores": {
+    "p127": "2",
+    "p114": "0"
+   },
+   "winner": "p127",
+   "auto": true
+  },
+  "R0-35": {
+   "players": [
+    "p115",
+    "p070"
+   ],
+   "scores": {
+    "p070": "2",
+    "p115": "0"
+   },
+   "winner": "p070",
+   "auto": true
+  },
+  "R0-29": {
+   "players": [
+    "p133",
+    "p124"
+   ],
+   "scores": {
+    "p133": "2",
+    "p124": "0"
+   },
+   "winner": "p133",
+   "auto": true
+  },
+  "R0-31": {
+   "players": [
+    "p086",
+    "p134"
+   ],
+   "scores": {
+    "p134": "2",
+    "p086": "0"
+   },
+   "winner": "p134",
+   "auto": true
+  },
+  "R0-30": {
+   "players": [
+    "p069",
+    "p033"
+   ],
+   "scores": {
+    "p069": "2",
+    "p033": "0"
+   },
+   "winner": "p069",
+   "auto": true
+  },
+  "R0-23": {
+   "players": [
+    "p093",
+    "p132"
+   ],
+   "scores": {
+    "p132": "2",
+    "p093": "0"
+   },
+   "winner": "p132",
+   "auto": true
+  },
+  "R0-36": {
+   "players": [
+    "p044",
+    "p006"
+   ],
+   "scores": {
+    "p044": "2",
+    "p006": "0"
+   },
+   "winner": "p044",
+   "auto": true
+  },
+  "R0-34": {
+   "players": [
+    "p055",
+    "p084"
+   ],
+   "scores": {
+    "p055": "0",
+    "p084": "0"
+   }
+  },
+  "R0-20": {
+   "players": [
+    "p026",
+    "p135"
+   ],
+   "scores": {
+    "p135": "2",
+    "p026": "0"
+   },
+   "winner": "p135",
+   "auto": true
+  },
+  "R0-25": {
+   "players": [
+    "p102",
+    "p001"
+   ],
+   "scores": {
+    "p102": "2",
+    "p001": "0"
+   },
+   "winner": "p102",
+   "auto": true
+  },
+  "R0-24": {
+   "players": [
+    "p079",
+    "p080"
+   ],
+   "scores": {
+    "p080": "2",
+    "p079": "0"
+   },
+   "winner": "p080",
+   "auto": true
+  },
+  "R0-33": {
+   "players": [
+    "p142",
+    "p123"
+   ],
+   "scores": {
+    "p142": "2",
+    "p123": "0"
+   },
+   "winner": "p142",
+   "auto": true
+  },
+  "R0-39": {
+   "players": [
+    "p090",
+    "p121"
+   ],
+   "scores": {
+    "p121": "2",
+    "p090": "1"
+   },
+   "winner": "p121",
+   "auto": true
+  },
+  "R0-28": {
+   "players": [
+    "p082",
+    "p025"
+   ],
+   "scores": {
+    "p082": "2",
+    "p025": "0"
+   },
+   "winner": "p082",
+   "auto": true
+  },
+  "R0-27": {
+   "players": [
+    "p015",
+    "p089"
+   ],
+   "scores": {
+    "p015": "0",
+    "p089": "0"
+   }
+  },
+  "R0-45": {
+   "players": [
+    "p048",
+    "p014"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "15:00",
+   "matchNum": 33
+  },
+  "R0-46": {
+   "players": [
+    "p149",
+    "p076"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "15:00",
+   "matchNum": 34
+  },
+  "R0-59": {
+   "players": [
+    "p045",
+    "p087"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "15:00",
+   "matchNum": 35
+  },
+  "R0-48": {
+   "players": [
+    "p096",
+    "p012"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "15:15",
+   "matchNum": 36
+  },
+  "R0-49": {
+   "players": [
+    "p031",
+    "p010"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "15:15",
+   "matchNum": 37
+  },
+  "R0-50": {
+   "players": [
+    "p017",
+    "p125"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "15:15",
+   "matchNum": 38
+  },
+  "R0-51": {
+   "players": [
+    "p051",
+    "p043"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "15:30",
+   "matchNum": 39
+  },
+  "R0-52": {
+   "players": [
+    "p011",
+    "p024"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "15:30",
+   "matchNum": 40
+  },
+  "R0-53": {
+   "players": [
+    "p101",
+    "p119"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "15:30",
+   "matchNum": 41
+  },
+  "R0-54": {
+   "players": [
+    "p126",
+    "p120"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "15:45",
+   "matchNum": 42
+  },
+  "R0-55": {
+   "players": [
+    "p073",
+    "p049"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "15:45",
+   "matchNum": 43
+  },
+  "R0-56": {
+   "players": [
+    "p112",
+    "p130"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "15:45",
+   "matchNum": 44
+  },
+  "R0-57": {
+   "players": [
+    "p030",
+    "p013"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "16:00",
+   "matchNum": 45
+  },
+  "R0-58": {
+   "players": [
+    "p037",
+    "p016"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "16:00",
+   "matchNum": 46
+  },
+  "R0-47": {
+   "players": [
+    "p007",
+    "p038"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "16:00",
+   "matchNum": 47
+  },
+  "R0-60": {
+   "players": [
+    "p113",
+    "p097"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "16:15",
+   "matchNum": 48
+  },
+  "R0-61": {
+   "players": [
+    "p036",
+    "p039"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "16:15",
+   "matchNum": 49
+  },
+  "R0-62": {
+   "players": [
+    "p042",
+    "p071"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "16:15",
+   "matchNum": 50
+  },
+  "R0-37": {
+   "players": [
+    "p146",
+    "p098"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "16:30",
+   "matchNum": 51
+  },
+  "R0-2": {
+   "players": [
+    "p078",
+    "p148"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "18:30",
+   "matchNum": 52
+  },
+  "R0-6": {
+   "players": [
+    "p147",
+    "p061"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "18:30",
+   "matchNum": 53
+  },
+  "R0-10": {
+   "players": [
+    "p052",
+    "p128"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "18:30",
+   "matchNum": 54
+  },
+  "R0-18": {
+   "players": [
+    "p131",
+    "p129"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "18:45",
+   "matchNum": 55
+  },
+  "R0-38": {
+   "players": [
+    "p050",
+    "p056"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "18:45",
+   "matchNum": 56
+  },
+  "R0-40": {
+   "players": [
+    "p064",
+    "p083"
+   ],
+   "status": "scheduled",
+   "date": "16 Ekim",
+   "time": "19:00",
+   "matchNum": 57
   }
  },
  "createdAt": "2026-10-13T21:01:02",
- "savedAt": "2026-10-15T15:01:53",
- "rev": 61,
+ "savedAt": "2026-10-15T23:00:51",
+ "rev": 79,
  "deleted": [
   {
    "name": "Asaf Tanrıseven",
    "src": "asaf tanriseven",
-   "phone_enc": "GgACBgIIAgEHDgEECQ=="
+   "phone": "+905310267378"
   },
   {
    "name": "Mehmet Emir Doğuş",
    "src": "mehmet emir dogus",
-   "phone_enc": "GgACBgUPCgMHCwcLAw=="
+   "phone": "+905468062582"
   },
   {
    "name": "Deniz Çevik",
    "src": "deniz cevik",
-   "phone_enc": "GgACBgILAQoBDQoKCQ=="
+   "phone": "+905323904898"
   },
   {
    "name": "Taha Seyyar",
    "src": "taha seyyar",
-   "phone_enc": "GgACBgIIBQAJDwUHAQ=="
+   "phone": "+905317386740"
   },
   {
    "name": "Yusuf Küçüksakarya",
    "src": "yusuf kucuksakarya",
-   "phone_enc": "GgACBgUNAwYDCwcGBw=="
+   "phone": "+905441522556"
   },
   {
    "name": "Egehan Uslu",
    "src": "egehan uslu",
-   "phone_enc": "GgACBgQLAgoEAQoKBw=="
+   "phone": "+905520958896"
   },
   {
    "name": "Zeynep Tülüler",
    "src": "zeynep tululer",
-   "phone_enc": "GgACBgIJBQMGCQEAAQ=="
+   "phone": "+905307070330"
   },
   {
    "name": "Elif Sena Maraşlı",
    "src": "elif sena marasli",
-   "phone_enc": "GgACBgIPAgIACQMDBw=="
+   "phone": "+905360110106"
   },
   {
    "name": "Hatice Melike Aydin",
    "src": "hatice melike aydin",
-   "phone_enc": "GgACBgUNCgEGCQUAAQ=="
+   "phone": "+905448270730"
   },
   {
    "name": "Saliha Betül Velioğlu",
    "src": "saliha betul velioglu",
-   "phone_enc": "GgACBgQLBAcJCAQGAg=="
+   "phone": "+905526481653"
   },
   {
    "name": "Ercan Demirel",
    "src": "ercan demirel",
-   "phone_enc": "GgACBgUPAAUACgcKCQ=="
+   "phone": "+905462613598"
   }
  ],
  "women": {
@@ -1558,12 +1983,5 @@
    }
   }
  },
- "announcement": "🏓 TOBB ETÜ Masa Tenisi Turnuvamız başlamıştır! Maç saatleri, masalar ve sonuçlar canlı olarak güncellenmektedir.",
- "tables": [
-  "Masa 1",
-  "Masa 2",
-  "Masa 3",
-  "Masa 4"
- ],
- "last_updated": "2026-10-15T23:55:00.000Z"
+ "last_updated": "2026-10-15T21:46:59.517Z"
 }

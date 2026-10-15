@@ -244,6 +244,9 @@
         <button onclick="switchView('bracket')" id="tab-view-bracket" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-brand-600 text-white shadow-sm flex items-center space-x-2 transition active:scale-95 shrink-0">
           <span>🏆</span><span>Turnuva Ağacı</span>
         </button>
+        <button onclick="switchView('schedule')" id="tab-view-schedule" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center space-x-2 transition active:scale-95 shrink-0">
+          <span>⏰</span><span>Maç Saatleri / Program</span>
+        </button>
         <button onclick="switchView('tables')" id="tab-view-tables" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center space-x-2 transition active:scale-95 shrink-0">
           <span>🏓</span><span>Masa Durumu</span>
         </button>
@@ -314,6 +317,52 @@
         </div>
       </div>
 
+    </section>
+
+    <!-- VIEW: SCHEDULE & MATCH PROGRAM (MAÇ SAATLERİ & PROGRAM ÇİZELGESİ) -->
+    <section id="view-schedule-container" class="hidden space-y-6">
+      <!-- WhatsApp Style Top Banner -->
+      <div class="glass-card rounded-2xl p-5 border border-emerald-500/30 bg-gradient-to-r from-emerald-950/70 via-slate-900/90 to-emerald-950/70 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 uppercase tracking-wider">
+                ⏰ Günlük Maç Çizelgesi
+              </span>
+              <span class="text-xs text-slate-400">•</span>
+              <span id="schedule-day-indicator" class="text-xs font-semibold text-amber-300">16 Ekim Cuma</span>
+            </div>
+            <h2 class="text-base sm:text-xl font-extrabold text-white">🏓 Maç Başlangıç Saatleri & Çizelge</h2>
+            <p class="text-xs text-slate-300">Aşağıdaki saatler maç başlangıç vakitleridir. Masalar canlı olarak atanır.</p>
+          </div>
+
+          <!-- Top Actions -->
+          <div class="flex items-center space-x-2 shrink-0">
+            <button onclick="copyWhatsAppSchedule()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-600/25 flex items-center space-x-2 transition active:scale-95">
+              <span>📋</span><span>WhatsApp Metnini Kopyala</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Chips for Dates & Unscheduled -->
+        <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-emerald-500/20 text-xs">
+          <span class="text-slate-400 text-[11px] font-semibold">Filtrele:</span>
+          <button onclick="setScheduleDateFilter('16 Ekim')" id="filter-sched-16" class="px-3 py-1 rounded-lg text-xs font-bold transition active:scale-95 bg-emerald-500 text-slate-950">
+            📅 16 Ekim Cuma
+          </button>
+          <button onclick="setScheduleDateFilter('all')" id="filter-sched-all" class="px-3 py-1 rounded-lg text-xs font-semibold text-slate-400 hover:text-white bg-slate-900 border border-slate-800 transition active:scale-95">
+            Tüm Maçlar
+          </button>
+          <button onclick="setScheduleDateFilter('unscheduled')" id="filter-sched-unscheduled" class="px-3 py-1 rounded-lg text-xs font-semibold text-amber-400/90 hover:text-amber-300 bg-slate-900 border border-slate-800 transition active:scale-95">
+            ⏳ Saat Bekleyenler
+          </button>
+        </div>
+      </div>
+
+      <!-- Schedule Content (Rendered dynamically by renderSchedule) -->
+      <div id="schedule-timeline-container" class="space-y-6">
+        <!-- Rendered by renderSchedule() -->
+      </div>
     </section>
 
     <!-- VIEW 2: TABLES (MASA DURUMU & SALON) -->
@@ -457,13 +506,26 @@
           </div>
         </div>
         <!-- Quick Date Chips -->
+        <!-- Quick Date Chips -->
         <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
           <span class="text-[10px] text-slate-400 font-semibold">Tarih Kısayolları:</span>
-          <button type="button" onclick="setQuickDate('Bugün')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 font-medium transition active:scale-95">Bugün</button>
-          <button type="button" onclick="setQuickDate('Yarın')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 font-medium transition active:scale-95">Yarın</button>
-          <button type="button" onclick="setQuickDate('17 Ekim Cuma')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 font-medium transition active:scale-95">17 Ekim</button>
-          <button type="button" onclick="setQuickDate('18 Ekim Cmt')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 font-medium transition active:scale-95">18 Ekim</button>
-          <button type="button" onclick="setQuickDate('19 Ekim Paz')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 font-medium transition active:scale-95">19 Ekim</button>
+          <button type="button" onclick="setQuickDate('16 Ekim Cuma')" class="px-2 py-0.5 rounded-lg bg-emerald-950/80 border border-emerald-500/40 text-[10px] text-emerald-200 font-medium transition active:scale-95">16 Ekim (Bugün)</button>
+          <button type="button" onclick="setQuickDate('17 Ekim Cumartesi')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 font-medium transition active:scale-95">17 Ekim (Yarın)</button>
+          <button type="button" onclick="setQuickDate('18 Ekim Pazar')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 font-medium transition active:scale-95">18 Ekim</button>
+        </div>
+        <!-- Quick Time Chips -->
+        <div class="flex flex-wrap items-center gap-1 pt-1">
+          <span class="text-[10px] text-slate-400 font-semibold">Saat Kısayolları:</span>
+          <button type="button" onclick="setQuickTime('15:00')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-emerald-600 hover:text-white text-[10px] text-slate-200 font-mono transition active:scale-95">15:00</button>
+          <button type="button" onclick="setQuickTime('15:15')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-emerald-600 hover:text-white text-[10px] text-slate-200 font-mono transition active:scale-95">15:15</button>
+          <button type="button" onclick="setQuickTime('15:30')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-emerald-600 hover:text-white text-[10px] text-slate-200 font-mono transition active:scale-95">15:30</button>
+          <button type="button" onclick="setQuickTime('15:45')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-emerald-600 hover:text-white text-[10px] text-slate-200 font-mono transition active:scale-95">15:45</button>
+          <button type="button" onclick="setQuickTime('16:00')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-emerald-600 hover:text-white text-[10px] text-slate-200 font-mono transition active:scale-95">16:00</button>
+          <button type="button" onclick="setQuickTime('16:15')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-emerald-600 hover:text-white text-[10px] text-slate-200 font-mono transition active:scale-95">16:15</button>
+          <button type="button" onclick="setQuickTime('16:30')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-emerald-600 hover:text-white text-[10px] text-slate-200 font-mono transition active:scale-95">16:30</button>
+          <button type="button" onclick="setQuickTime('18:30')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-emerald-600 hover:text-white text-[10px] text-slate-200 font-mono transition active:scale-95">18:30</button>
+          <button type="button" onclick="setQuickTime('18:45')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-emerald-600 hover:text-white text-[10px] text-slate-200 font-mono transition active:scale-95">18:45</button>
+          <button type="button" onclick="setQuickTime('19:00')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-emerald-600 hover:text-white text-[10px] text-slate-200 font-mono transition active:scale-95">19:00</button>
         </div>
       </div>
 
@@ -851,6 +913,7 @@
       renderStats();
       renderBracket();
       renderTreeBracket();
+      renderSchedule();
       renderTables();
       renderPodium();
       if (currentView === 'search') {
@@ -907,10 +970,11 @@
     // View Switcher
     function switchView(v) {
       currentView = v;
-      const tabs = ['bracket', 'tables', 'search', 'podium'];
+      const tabs = ['bracket', 'schedule', 'tables', 'search', 'podium'];
       tabs.forEach(t => {
         const btn = $('#tab-view-' + t);
         const container = $('#view-' + t + '-container');
+        if (!btn || !container) return;
         if (t === v) {
           btn.className = 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-brand-600 text-white shadow-sm flex items-center space-x-2 transition active:scale-95 shrink-0';
           container.classList.remove('hidden');
@@ -919,6 +983,9 @@
           container.classList.add('hidden');
         }
       });
+      if (v === 'schedule') {
+        renderSchedule();
+      }
     }
 
     // Bracket view mode ('tree' or 'cards')
@@ -948,6 +1015,14 @@
 
     function setQuickDate(val) {
       const inp = $('#edit-match-date');
+      if (inp) {
+        inp.value = val;
+        inp.focus();
+      }
+    }
+
+    function setQuickTime(val) {
+      const inp = $('#edit-match-time');
       if (inp) {
         inp.value = val;
         inp.focus();
@@ -1190,6 +1265,8 @@
       if (currentView === 'bracket') {
         renderBracket();
         renderTreeBracket();
+      } else if (currentView === 'schedule') {
+        renderSchedule();
       } else if (currentView === 'search') {
         renderPlayerFinder(val);
       }
@@ -1297,6 +1374,303 @@
           </div>
         </div>
       `;
+    }
+
+    // ========================================================
+    // SCHEDULE VIEW RENDERING (MAÇ PROGRAMI & SAATLER)
+    // ========================================================
+    let currentScheduleDateFilter = '16 Ekim';
+
+    function setScheduleDateFilter(filter) {
+      currentScheduleDateFilter = filter;
+      const b16 = $('#filter-sched-16');
+      const bAll = $('#filter-sched-all');
+      const bUn = $('#filter-sched-unscheduled');
+
+      const activeClass = 'px-3 py-1 rounded-lg text-xs font-bold transition active:scale-95 bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20';
+      const inactiveClass = 'px-3 py-1 rounded-lg text-xs font-semibold text-slate-400 hover:text-white bg-slate-900 border border-slate-800 transition active:scale-95';
+      const unschedClass = 'px-3 py-1 rounded-lg text-xs font-semibold text-amber-400/90 hover:text-amber-300 bg-slate-900 border border-slate-800 transition active:scale-95';
+
+      if (b16) b16.className = filter === '16 Ekim' ? activeClass : inactiveClass;
+      if (bAll) bAll.className = filter === 'all' ? activeClass : inactiveClass;
+      if (bUn) bUn.className = filter === 'unscheduled' ? activeClass : unschedClass;
+
+      renderSchedule();
+    }
+
+    function renderSchedule() {
+      if (!computedBracket || !tournamentData) return;
+      const container = $('#schedule-timeline-container');
+      if (!container) return;
+
+      const pmap = TL.participantMap(tournamentData);
+      const allMatches = computedBracket.rounds.flat().concat(computedBracket.third ? [computedBracket.third] : []);
+      const query = ($('#global-search-input').value || '').toLocaleLowerCase('tr');
+
+      // Filter matches by date or unscheduled
+      let list = allMatches.filter(m => {
+        // Exclude bye matches
+        if (m.auto && (m.sides[0].type === 'bye' || m.sides[1].type === 'bye')) return false;
+
+        const res = m.result || {};
+        if (currentScheduleDateFilter === 'unscheduled') {
+          return !res.time && m.playable && (!m.winner || m.winner.type !== 'player');
+        } else if (currentScheduleDateFilter === '16 Ekim') {
+          return res.date && res.date.includes('16 Ekim');
+        }
+        return true;
+      });
+
+      // Filter by global search query
+      if (query) {
+        list = list.filter(m => {
+          const n1 = getSideName(m.sides[0], pmap).toLocaleLowerCase('tr');
+          const n2 = getSideName(m.sides[1], pmap).toLocaleLowerCase('tr');
+          return n1.includes(query) || n2.includes(query) || m.id.toLocaleLowerCase().includes(query);
+        });
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="glass-card rounded-2xl p-12 border border-slate-800 text-center space-y-3">
+            <span class="text-3xl">📅</span>
+            <p class="text-slate-400 text-sm font-semibold">Bu filtreye uygun maç programı bulunamadı.</p>
+            <p class="text-slate-500 text-xs">Farklı bir filtre seçerek veya yukarıdan tüm maçları listeleyebilirsiniz.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Group matches by time
+      const timeGroups = {};
+      list.forEach(m => {
+        const t = (m.result && m.result.time) ? m.result.time : 'Saat Belirlenmedi';
+        if (!timeGroups[t]) timeGroups[t] = [];
+        timeGroups[t].push(m);
+      });
+
+      // Sort time keys
+      const sortedKeys = Object.keys(timeGroups).sort((a, b) => {
+        if (a === 'Saat Belirlenmedi') return 1;
+        if (b === 'Saat Belirlenmedi') return -1;
+        return a.localeCompare(b);
+      });
+
+      let html = '';
+      sortedKeys.forEach(timeSlot => {
+        const matchesInSlot = timeGroups[timeSlot];
+        const isUnscheduledSlot = timeSlot === 'Saat Belirlenmedi';
+
+        html += `
+          <div class="space-y-3">
+            <!-- Time Slot Header -->
+            <div class="flex items-center space-x-2.5">
+              <span class="text-xs sm:text-sm font-black font-mono px-3 py-1 rounded-xl shadow-sm flex items-center space-x-1.5 ${isUnscheduledSlot ? 'bg-amber-950/80 border border-amber-600/40 text-amber-300' : 'bg-emerald-950/90 border border-emerald-500/50 text-emerald-300'}">
+                <span>⏰</span><span>${timeSlot}</span>
+              </span>
+              <span class="text-xs font-semibold text-slate-400">(${matchesInSlot.length} Maç)</span>
+              <div class="h-px bg-slate-800/80 flex-1 ml-2"></div>
+            </div>
+
+            <!-- Matches in this slot -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              ${matchesInSlot.map(m => renderScheduleMatchCard(m, pmap)).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function renderScheduleMatchCard(m, pmap) {
+      const res = m.result || {};
+      const status = res.status || (m.winner && m.winner.type === 'player' ? 'completed' : (res.scores ? 'in_progress' : 'scheduled'));
+      const s1 = m.sides[0];
+      const s2 = m.sides[1];
+      const p1Name = getSideName(s1, pmap);
+      const p2Name = getSideName(s2, pmap);
+
+      const scores = res.scores || {};
+      const s1Score = s1.id && scores[s1.id] != null ? scores[s1.id] : '';
+      const s2Score = s2.id && scores[s2.id] != null ? scores[s2.id] : '';
+
+      const isP1Winner = m.winner && s1.id && m.winner.id === s1.id;
+      const isP2Winner = m.winner && s2.id && m.winner.id === s2.id;
+      const isWalkover = status === 'walkover';
+
+      const matchNumBadge = res.matchNum ? `<span class="px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300 font-black font-mono text-[11px] mr-1.5">(${res.matchNum})</span>` : '';
+
+      let statusBadge = '';
+      if (status === 'in_progress') {
+        statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 pulse-dot"></span>Canlı</span>';
+      } else if (status === 'completed') {
+        statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">Tamamlandı</span>';
+      } else if (status === 'walkover') {
+        statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-900/60 text-purple-300 border border-purple-600/50">Hükmen</span>';
+      } else {
+        statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-900 text-slate-400 border border-slate-800">Planlandı</span>';
+      }
+
+      return `
+        <div class="glass-card rounded-2xl p-3.5 border ${m.winner && m.winner.type === 'player' ? 'border-emerald-500/40 bg-slate-900/90' : 'border-slate-800/90 bg-slate-900/60'} flex flex-col justify-between space-y-2.5 transition hover:border-slate-700 shadow-sm">
+          <!-- Top bar -->
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center space-x-1">
+              ${matchNumBadge}
+              <span class="font-mono text-[10px] text-slate-500">#${m.id}</span>
+              ${res.table ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-sans font-medium ml-1">🏓 ${res.table}</span>` : ''}
+            </div>
+            ${statusBadge}
+          </div>
+
+          <!-- Players & Scores with Click to Win for Admin -->
+          <div class="space-y-1.5">
+            <!-- Player 1 -->
+            <div onclick="handleQuickWinnerClick('${m.id}', '${s1.id}', event)" class="flex items-center justify-between p-2 rounded-xl text-xs transition ${isP1Winner ? 'bg-emerald-950/70 border border-emerald-500/40 text-emerald-200 font-bold' : (s1.type === 'bye' ? 'text-slate-500 italic bg-slate-900/40' : 'text-slate-200 bg-slate-950/70')} ${isAdmin && m.playable && s1.type === 'player' ? 'cursor-pointer hover:border-emerald-500/60 hover:bg-emerald-950/40 active:scale-[0.99] select-none' : ''}" title="${isAdmin && m.playable && s1.type === 'player' ? (isP1Winner ? 'Tıkla: Galibiyeti Geri Al' : 'Tıkla: Kazanan Olarak Seç') : ''}">
+              <div class="flex items-center space-x-1.5 truncate">
+                ${isP1Winner ? '<span class="text-xs text-emerald-400 font-bold">✓</span>' : (isAdmin && m.playable && s1.type === 'player' ? '<span class="text-xs text-slate-600 hover:text-emerald-400">○</span>' : '')}
+                <span class="truncate font-medium">${p1Name}</span>
+                ${isP1Winner ? '<span class="text-[8px] font-extrabold uppercase tracking-wide text-emerald-300 bg-emerald-950 border border-emerald-500/40 px-1 py-0.2 rounded-full ml-1">KAZANDI</span>' : ''}
+              </div>
+              <span class="font-mono text-xs font-bold shrink-0 ml-2">${isWalkover && isP1Winner ? 'W.O.' : s1Score}</span>
+            </div>
+
+            <!-- Player 2 -->
+            <div onclick="handleQuickWinnerClick('${m.id}', '${s2.id}', event)" class="flex items-center justify-between p-2 rounded-xl text-xs transition ${isP2Winner ? 'bg-emerald-950/70 border border-emerald-500/40 text-emerald-200 font-bold' : (s2.type === 'bye' ? 'text-slate-500 italic bg-slate-900/40' : 'text-slate-200 bg-slate-950/70')} ${isAdmin && m.playable && s2.type === 'player' ? 'cursor-pointer hover:border-emerald-500/60 hover:bg-emerald-950/40 active:scale-[0.99] select-none' : ''}" title="${isAdmin && m.playable && s2.type === 'player' ? (isP2Winner ? 'Tıkla: Galibiyeti Geri Al' : 'Tıkla: Kazanan Olarak Seç') : ''}">
+              <div class="flex items-center space-x-1.5 truncate">
+                ${isP2Winner ? '<span class="text-xs text-emerald-400 font-bold">✓</span>' : (isAdmin && m.playable && s2.type === 'player' ? '<span class="text-xs text-slate-600 hover:text-emerald-400">○</span>' : '')}
+                <span class="truncate font-medium">${p2Name}</span>
+                ${isP2Winner ? '<span class="text-[8px] font-extrabold uppercase tracking-wide text-emerald-300 bg-emerald-950 border border-emerald-500/40 px-1 py-0.2 rounded-full ml-1">KAZANDI</span>' : ''}
+              </div>
+              <span class="font-mono text-xs font-bold shrink-0 ml-2">${isWalkover && isP2Winner ? 'W.O.' : s2Score}</span>
+            </div>
+          </div>
+
+          <!-- Bottom bar (Admin Quick Controls or Info) -->
+          ${isAdmin ? `
+            <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between gap-1.5">
+              <div class="flex items-center space-x-1 min-w-0">
+                <select onchange="updateMatchTimeDirectly('${m.id}', this.value)" class="bg-slate-950 text-amber-300 border border-amber-500/40 text-[10px] font-mono rounded px-1.5 py-0.5 focus:outline-none truncate" title="Doğrudan Maç Saati Seç">
+                  <option value="">(Saat Seç)</option>
+                  ${['15:00', '15:15', '15:30', '15:45', '16:00', '16:15', '16:30', '18:30', '18:45', '19:00', '19:30', '20:00'].map(t => `<option value="${t}" ${res.time === t ? 'selected' : ''}>${t}</option>`).join('')}
+                </select>
+                <select onchange="updateMatchTableDirectly('${m.id}', this.value)" class="bg-slate-950 text-slate-300 border border-slate-700 text-[10px] font-sans rounded px-1 py-0.5 focus:outline-none truncate" title="Masa Ata">
+                  <option value="">(Masa Yok)</option>
+                  ${['Masa 1', 'Masa 2', 'Masa 3', 'Masa 4', 'Masa 5'].map(t => `<option value="${t}" ${res.table === t ? 'selected' : ''}>${t}</option>`).join('')}
+                </select>
+              </div>
+              <button onclick="openMatchEditModal('${m.id}')" class="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[9px] font-bold shrink-0 flex items-center space-x-1 transition active:scale-95">
+                <span>⚡</span><span>Düzenle</span>
+              </button>
+            </div>
+          ` : `
+            <div class="pt-1.5 border-t border-slate-800/40 flex items-center justify-between text-[10px] text-slate-500">
+              <span>${m.isThird ? '3.lük Maçı' : TL.roundName(m.r, computedBracket.R)}</span>
+              ${res.date ? `<span class="text-amber-400/80">📅 ${res.date}</span>` : ''}
+            </div>
+          `}
+        </div>
+      `;
+    }
+
+    function updateMatchTimeDirectly(mid, newTime) {
+      if (!isAdmin) return;
+      const viewState = TL.viewOf(tournamentData, currentGender);
+      if (!viewState.results) viewState.results = {};
+
+      const br = computedBracket || TL.computeBracket(viewState);
+      const match = br && br.byId ? br.byId.get(mid) : null;
+      if (!match) return;
+
+      const res = Object.assign({}, viewState.results[mid] || {});
+      res.players = [match.sides[0].id, match.sides[1].id].filter(Boolean);
+      if (newTime) {
+        res.time = newTime;
+        if (!res.date) res.date = '16 Ekim Cuma';
+        if (!res.status) res.status = 'scheduled';
+      } else {
+        delete res.time;
+      }
+
+      viewState.results[mid] = res;
+      tournamentData.last_updated = new Date().toISOString();
+      saveOfflineAndRefresh(newTime ? `Maç saati ${newTime} olarak güncellendi 🕒` : 'Maç saati kaldırıldı');
+    }
+
+    function updateMatchTableDirectly(mid, newTable) {
+      if (!isAdmin) return;
+      const viewState = TL.viewOf(tournamentData, currentGender);
+      if (!viewState.results) viewState.results = {};
+
+      const br = computedBracket || TL.computeBracket(viewState);
+      const match = br && br.byId ? br.byId.get(mid) : null;
+      if (!match) return;
+
+      const res = Object.assign({}, viewState.results[mid] || {});
+      res.players = [match.sides[0].id, match.sides[1].id].filter(Boolean);
+      if (newTable) {
+        res.table = newTable;
+        if (!res.status) res.status = 'scheduled';
+      } else {
+        delete res.table;
+      }
+
+      viewState.results[mid] = res;
+      tournamentData.last_updated = new Date().toISOString();
+      saveOfflineAndRefresh(newTable ? `${newTable} atandı 🏓` : 'Masa ataması kaldırıldı');
+    }
+
+    function copyWhatsAppSchedule(dateFilter = currentScheduleDateFilter) {
+      if (!computedBracket || !tournamentData) return;
+      const pmap = TL.participantMap(tournamentData);
+      const allMatches = computedBracket.rounds.flat().concat(computedBracket.third ? [computedBracket.third] : []);
+
+      // Filter matches by date
+      let list = allMatches.filter(m => {
+        if (m.auto && (m.sides[0].type === 'bye' || m.sides[1].type === 'bye')) return false;
+        const res = m.result;
+        if (!res) return false;
+        if (dateFilter && dateFilter === '16 Ekim') {
+          return res.date && res.date.includes('16 Ekim');
+        }
+        return !!res.time;
+      });
+
+      if (list.length === 0) {
+        showToast('Kopyalanacak saatli maç bulunamadı.', 'warning');
+        return;
+      }
+
+      // Group by time
+      const timeGroups = {};
+      list.forEach(m => {
+        const t = (m.result && m.result.time) ? m.result.time : 'Belirtilmedi';
+        if (!timeGroups[t]) timeGroups[t] = [];
+        timeGroups[t].push(m);
+      });
+
+      const sortedTimes = Object.keys(timeGroups).sort((a, b) => a.localeCompare(b));
+
+      let text = `🏓 Erkekler Masa Tenisi Turnuvası – 3. Gün\n\n`;
+      text += `Yarın, 16 Ekim Cuma, 1. turun kalan maçları oynanacak ve 1. tur tamamlanacaktır. Maç başlangıç saatleri aşağıdaki gibidir:\n\n`;
+
+      sortedTimes.forEach(t => {
+        text += `⏰ ${t.replace(':', '.')}\n`;
+        timeGroups[t].forEach(m => {
+          const p1 = getSideName(m.sides[0], pmap);
+          const p2 = getSideName(m.sides[1], pmap);
+          const num = m.result && m.result.matchNum ? `(${m.result.matchNum}) ` : '';
+          text += `${num}${p1} – ${p2}\n`;
+        });
+        text += `\n`;
+      });
+
+      navigator.clipboard.writeText(text.trim()).then(() => {
+        showToast('WhatsApp maç programı metni panoya kopyalandı! 📋', 'success');
+      }).catch(() => {
+        showToast('Panoya kopyalanamadı, izinleri kontrol edin.', 'error');
+      });
     }
 
     // TABLES VIEW (CANLI SALON)

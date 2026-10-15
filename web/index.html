@@ -84,6 +84,11 @@
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span>DB: <b id="admin-last-sync-time" class="text-white">Bağlı & Güncel</b></span>
         </div>
+        <!-- Quick Winner Tip -->
+        <div class="hidden lg:inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-lg bg-black/40 border border-amber-500/20 text-[11px] text-amber-200/90">
+          <span>⚡</span>
+          <span><b>Hızlı İşlem:</b> Karttaki oyuncu adına tıklayarak kazananı anında belirleyebilirsiniz</span>
+        </div>
       </div>
       <div class="flex items-center space-x-2">
         <button onclick="openAnnouncementModal()" class="px-2.5 py-1 rounded-lg bg-amber-900/80 hover:bg-amber-800 text-amber-200 border border-amber-600/50 flex items-center space-x-1 transition active:scale-95 font-medium">
@@ -1054,14 +1059,20 @@
           </div>
 
           <!-- Player 1 -->
-          <div class="flex items-center justify-between px-2 py-1 rounded-lg text-xs ${isP1Winner ? 'bg-emerald-950/80 text-emerald-200 font-bold border border-emerald-500/40' : (s1.type === 'bye' ? 'text-slate-600 italic bg-slate-950/40' : 'text-slate-300 bg-slate-950/60')}">
-            <span class="truncate text-[11px] ${query && n1Lower.includes(query) ? 'text-amber-300 font-bold' : ''}" title="${p1Name}">${p1Name}</span>
+          <div onclick="handleQuickWinnerClick('${m.id}', '${s1.id}', event)" class="flex items-center justify-between px-2 py-1 rounded-lg text-xs transition ${isP1Winner ? 'bg-emerald-950/80 text-emerald-200 font-bold border border-emerald-500/40' : (s1.type === 'bye' ? 'text-slate-600 italic bg-slate-950/40' : 'text-slate-300 bg-slate-950/60')} ${isAdmin && m.playable && s1.type === 'player' ? 'cursor-pointer hover:border-emerald-500/60 hover:bg-emerald-950/40 active:scale-[0.99] select-none' : ''}" title="${isAdmin && m.playable && s1.type === 'player' ? (isP1Winner ? 'Tıkla: Galibiyeti Geri Al' : 'Tıkla: Kazanan Olarak Seç') : p1Name}">
+            <div class="flex items-center space-x-1.5 truncate">
+              ${isP1Winner ? '<span class="text-emerald-400 font-bold text-xs shrink-0">✓</span>' : (isAdmin && m.playable && s1.type === 'player' ? '<span class="text-slate-600 hover:text-emerald-400 text-xs shrink-0">○</span>' : '')}
+              <span class="truncate text-[11px] ${query && n1Lower.includes(query) ? 'text-amber-300 font-bold' : ''}">${p1Name}</span>
+            </div>
             <span class="font-mono text-xs font-bold shrink-0 ml-1.5">${isWalkover && isP1Winner ? 'W.O.' : s1Score}</span>
           </div>
 
           <!-- Player 2 -->
-          <div class="flex items-center justify-between px-2 py-1 rounded-lg text-xs ${isP2Winner ? 'bg-emerald-950/80 text-emerald-200 font-bold border border-emerald-500/40' : (s2.type === 'bye' ? 'text-slate-600 italic bg-slate-950/40' : 'text-slate-300 bg-slate-950/60')}">
-            <span class="truncate text-[11px] ${query && n2Lower.includes(query) ? 'text-amber-300 font-bold' : ''}" title="${p2Name}">${p2Name}</span>
+          <div onclick="handleQuickWinnerClick('${m.id}', '${s2.id}', event)" class="flex items-center justify-between px-2 py-1 rounded-lg text-xs transition ${isP2Winner ? 'bg-emerald-950/80 text-emerald-200 font-bold border border-emerald-500/40' : (s2.type === 'bye' ? 'text-slate-600 italic bg-slate-950/40' : 'text-slate-300 bg-slate-950/60')} ${isAdmin && m.playable && s2.type === 'player' ? 'cursor-pointer hover:border-emerald-500/60 hover:bg-emerald-950/40 active:scale-[0.99] select-none' : ''}" title="${isAdmin && m.playable && s2.type === 'player' ? (isP2Winner ? 'Tıkla: Galibiyeti Geri Al' : 'Tıkla: Kazanan Olarak Seç') : p2Name}">
+            <div class="flex items-center space-x-1.5 truncate">
+              ${isP2Winner ? '<span class="text-emerald-400 font-bold text-xs shrink-0">✓</span>' : (isAdmin && m.playable && s2.type === 'player' ? '<span class="text-slate-600 hover:text-emerald-400 text-xs shrink-0">○</span>' : '')}
+              <span class="truncate text-[11px] ${query && n2Lower.includes(query) ? 'text-amber-300 font-bold' : ''}">${p2Name}</span>
+            </div>
             <span class="font-mono text-xs font-bold shrink-0 ml-1.5">${isWalkover && isP2Winner ? 'W.O.' : s2Score}</span>
           </div>
 
@@ -1244,11 +1255,12 @@
           <!-- Players and Scores -->
           <div class="space-y-1.5">
             <!-- Player 1 Row -->
-            <div class="flex items-center justify-between p-2 rounded-xl transition ${isP1Winner ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 font-bold' : (s1.type === 'bye' ? 'text-slate-500 italic bg-slate-900/40' : 'text-slate-200 bg-slate-900/70')}">
+            <div onclick="handleQuickWinnerClick('${m.id}', '${s1.id}', event)" class="flex items-center justify-between p-2 rounded-xl transition ${isP1Winner ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 font-bold' : (s1.type === 'bye' ? 'text-slate-500 italic bg-slate-900/40' : 'text-slate-200 bg-slate-900/70')} ${isAdmin && m.playable && s1.type === 'player' ? 'cursor-pointer hover:border-emerald-500/60 hover:bg-emerald-950/40 active:scale-[0.99] select-none' : ''}" title="${isAdmin && m.playable && s1.type === 'player' ? (isP1Winner ? 'Tıkla: Galibiyeti Geri Al' : 'Tıkla: Kazanan Olarak Seç') : ''}">
               <div class="flex items-center space-x-2 truncate">
                 <span class="w-5 text-center text-[10px] font-mono text-slate-500">${m.r === 0 ? m.m * 2 + 1 : ''}</span>
+                ${isP1Winner ? '<span class="text-xs text-emerald-400 font-bold">✓</span>' : (isAdmin && m.playable && s1.type === 'player' ? '<span class="text-xs text-slate-600 hover:text-emerald-400">○</span>' : '')}
                 <span class="truncate text-xs">${p1Name}</span>
-                ${isP1Winner ? '<span class="text-[10px] text-emerald-400">✓</span>' : ''}
+                ${isP1Winner ? '<span class="text-[9px] font-extrabold uppercase tracking-wide text-emerald-300 bg-emerald-950/90 border border-emerald-500/40 px-1.5 py-0.2 rounded-full ml-1">KAZANAN</span>' : ''}
               </div>
               <div class="text-xs font-mono font-bold shrink-0 ml-2">
                 ${isWalkover && isP1Winner ? '<span class="text-[10px] text-purple-300 px-1 rounded bg-purple-950">W.O.</span>' : s1Score}
@@ -1256,11 +1268,12 @@
             </div>
 
             <!-- Player 2 Row -->
-            <div class="flex items-center justify-between p-2 rounded-xl transition ${isP2Winner ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 font-bold' : (s2.type === 'bye' ? 'text-slate-500 italic bg-slate-900/40' : 'text-slate-200 bg-slate-900/70')}">
+            <div onclick="handleQuickWinnerClick('${m.id}', '${s2.id}', event)" class="flex items-center justify-between p-2 rounded-xl transition ${isP2Winner ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 font-bold' : (s2.type === 'bye' ? 'text-slate-500 italic bg-slate-900/40' : 'text-slate-200 bg-slate-900/70')} ${isAdmin && m.playable && s2.type === 'player' ? 'cursor-pointer hover:border-emerald-500/60 hover:bg-emerald-950/40 active:scale-[0.99] select-none' : ''}" title="${isAdmin && m.playable && s2.type === 'player' ? (isP2Winner ? 'Tıkla: Galibiyeti Geri Al' : 'Tıkla: Kazanan Olarak Seç') : ''}">
               <div class="flex items-center space-x-2 truncate">
                 <span class="w-5 text-center text-[10px] font-mono text-slate-500">${m.r === 0 ? m.m * 2 + 2 : ''}</span>
+                ${isP2Winner ? '<span class="text-xs text-emerald-400 font-bold">✓</span>' : (isAdmin && m.playable && s2.type === 'player' ? '<span class="text-xs text-slate-600 hover:text-emerald-400">○</span>' : '')}
                 <span class="truncate text-xs">${p2Name}</span>
-                ${isP2Winner ? '<span class="text-[10px] text-emerald-400">✓</span>' : ''}
+                ${isP2Winner ? '<span class="text-[9px] font-extrabold uppercase tracking-wide text-emerald-300 bg-emerald-950/90 border border-emerald-500/40 px-1.5 py-0.2 rounded-full ml-1">KAZANAN</span>' : ''}
               </div>
               <div class="text-xs font-mono font-bold shrink-0 ml-2">
                 ${isWalkover && isP2Winner ? '<span class="text-[10px] text-purple-300 px-1 rounded bg-purple-950">W.O.</span>' : s2Score}
@@ -1525,6 +1538,72 @@
       $('#admin-banner').classList.add('hidden');
       showToast('Yönetici modundan çıkıldı.', 'info');
       renderAll();
+    }
+
+    // Admin One-Click Quick Winner Pick / Toggle
+    function handleQuickWinnerClick(mid, pid, event) {
+      if (event) {
+        event.stopPropagation();
+      }
+      if (!isAdmin) return;
+      if (!pid || pid === 'bye' || pid === 'pending') return;
+
+      const viewState = TL.viewOf(tournamentData, currentGender);
+      if (!viewState.results) viewState.results = {};
+
+      const br = computedBracket || TL.computeBracket(viewState);
+      const match = br && br.byId ? br.byId.get(mid) : null;
+      if (!match) return;
+
+      if (!match.playable) {
+        showToast('Bu maç henüz oynanabilir durumda değil (rakip bekleniyor).', 'warning');
+        return;
+      }
+
+      const [s1, s2] = match.sides;
+      if (!s1 || !s2 || (s1.id !== pid && s2.id !== pid)) return;
+
+      const pmap = TL.participantMap(tournamentData);
+      const pObj = pmap.get(pid);
+      const pName = pObj ? pObj.name : 'Oyuncu';
+
+      const prevRes = viewState.results[mid] || {};
+      const isCurrentWinner = prevRes.winner === pid;
+
+      if (isCurrentWinner) {
+        // Toggle OFF (reset winner)
+        delete prevRes.winner;
+        if (prevRes.status === 'completed' || prevRes.status === 'walkover') {
+          prevRes.status = 'scheduled';
+        }
+        if (!prevRes.date && !prevRes.time && !prevRes.table && (!prevRes.scores || Object.keys(prevRes.scores).length === 0)) {
+          delete viewState.results[mid];
+        } else {
+          viewState.results[mid] = prevRes;
+        }
+        TL.normalize(viewState);
+        tournamentData.last_updated = new Date().toISOString();
+        saveOfflineAndRefresh(`${pName} galibiyeti geri alındı.`);
+      } else {
+        // Set as winner
+        const res = Object.assign({}, prevRes);
+        res.players = [s1.id, s2.id].filter(Boolean);
+        res.winner = pid;
+        res.status = 'completed';
+
+        // Check if existing scores conflict with this winner
+        const otherId = pid === s1.id ? s2.id : s1.id;
+        const sc = res.scores;
+        const isNumVal = (v) => v != null && String(v).trim() !== '' && !isNaN(Number(v));
+        if (sc && isNumVal(sc[pid]) && isNumVal(sc[otherId]) && Number(sc[pid]) < Number(sc[otherId])) {
+          delete res.scores;
+        }
+
+        viewState.results[mid] = res;
+        TL.normalize(viewState);
+        tournamentData.last_updated = new Date().toISOString();
+        saveOfflineAndRefresh(`🏆 ${pName} kazandı olarak kaydedildi!`);
+      }
     }
 
     // Open Match Edit Modal

@@ -18,7 +18,6 @@
   --blue: #2196f3;
   --blue-dark: #1a7fd0;
   --green: #3fb27f;
-  --win: #4a6f58;
   --orange: #f0a43a;
   --red: #e5534b;
   --gold: #f5c542;
@@ -70,11 +69,6 @@ svg.fill { fill: currentColor; stroke: none; }
 .spacer { flex: 1; }
 .save-status { font-size: 13px; color: var(--text-3); white-space: nowrap; margin-right: 6px; }
 .save-status.dirty { color: var(--orange); }
-.save-status.error { color: var(--red); }
-.ro-chip {
-  font-size: 12px; color: var(--text-2); border: 1px solid #4a4d53; border-radius: 12px;
-  padding: 4px 10px; white-space: nowrap;
-}
 .icon-btn {
   background: transparent; border: 0; width: 36px; height: 36px; border-radius: 4px;
   display: grid; place-items: center; color: var(--text-2);
@@ -88,7 +82,6 @@ svg.fill { fill: currentColor; stroke: none; }
 }
 .btn-save.dirty { background: var(--green); }
 .btn-save.dirty:hover { background: #36a070; }
-.btn-save:disabled { cursor: default; }
 .btn-dl {
   background: var(--blue); border: 0; border-radius: 2px; width: 46px; height: 34px;
   display: grid; place-items: center; color: #fff;
@@ -196,7 +189,6 @@ svg.fill { fill: currentColor; stroke: none; }
 .prow:hover .del { opacity: 1; }
 .prow .del:hover { color: var(--red); }
 .prow.dragging { opacity: .4; }
-.prow.flash input.pname { border-color: var(--hl); }
 
 .addrow { display: flex; gap: 6px; margin-top: 14px; }
 .addrow input { flex: 1; height: 32px; background: var(--input); border: 1px solid var(--input-border); padding: 0 8px; border-radius: 3px; }
@@ -232,7 +224,6 @@ svg.fill { fill: currentColor; stroke: none; }
 
 /* ---------- Tablo alanı ---------- */
 .canvas { flex: 1; overflow: auto; position: relative; outline: none; background: var(--bg); }
-.canvas:fullscreen { background: var(--bg); }
 .banner {
   position: sticky; left: 0; z-index: 6;
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
@@ -257,7 +248,6 @@ svg.fill { fill: currentColor; stroke: none; }
 .area { position: relative; }
 .area svg.lines { position: absolute; left: 0; top: 0; width: auto; height: auto; overflow: visible; pointer-events: none; }
 .area svg.lines path { stroke: var(--line); stroke-width: 1.6; fill: none; stroke-linecap: square; }
-.area svg.lines path.dim { stroke: #5d6066; }
 
 .match {
   position: absolute; width: 210px; height: 58px; background: var(--match);
@@ -301,10 +291,6 @@ svg.fill { fill: currentColor; stroke: none; }
 .row.selected { box-shadow: inset 0 0 0 2px var(--blue); }
 .r0 .seed { cursor: grab; }
 .r0 .seed:hover { background: #3f5f80; }
-.match .mno {
-  position: absolute; left: -24px; top: 21px; font-size: 9.5px; color: #55585e; width: 20px; text-align: right;
-  pointer-events: none;
-}
 .match.third { outline: 1px dashed #6e7178; outline-offset: 4px; }
 .label-3rd {
   position: absolute; font-size: 11.5px; letter-spacing: 1.1px; text-transform: uppercase; color: #9a9ca1;
@@ -357,17 +343,6 @@ svg.fill { fill: currentColor; stroke: none; }
 .dialog select, .dialog label { font-size: 13.5px; }
 .dialog select { background: #23252a; color: #eee; border: 1px solid #44464c; border-radius: 4px; height: 32px; padding: 0 8px; }
 .dialog .opts { display: flex; gap: 14px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
-
-/* Sadece görüntüleme (paylaşılan linki açan arkadaşlar) */
-body.ro #saveBtn, body.ro #undoBtn, body.ro #redoBtn, body.ro .rail [data-panel="tools"],
-body.ro .prow .handle, body.ro .prow .del { display: none; }
-body.ro .prow .g { cursor: default; }
-body.ro .prow .g:hover { border-color: #4a4d53; }
-body.ro .prow input.pname { cursor: default; }
-body.ro .r0 .seed { cursor: default; }
-body.ro .r0 .seed:hover { background: var(--seed); }
-body.ro .row.win .seed { background: var(--green); }
-body.ro .title-input:hover { border-color: transparent; }
 
 @media (max-width: 760px) {
   .brand { display: none; }

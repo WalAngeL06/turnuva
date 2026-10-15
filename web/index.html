@@ -8,13 +8,11 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<template id="shell-tpl">
 <header class="topbar">
   <div class="brand">Turnuva <b>Tablosu</b></div>
   <input id="title" class="title-input" spellcheck="false" maxlength="80" title="Turnuva adını değiştirmek için tıkla">
   <div class="spacer"></div>
   <span id="saveStatus" class="save-status"></span>
-  <span id="roChip" class="ro-chip" hidden>Sadece görüntüleme</span>
   <button id="undoBtn" class="icon-btn" title="Geri al (⌘Z)" disabled>
     <svg viewBox="0 0 24 24"><path d="M9 7 4 12l5 5M4 12h10a6 6 0 0 1 0 12h-2" transform="translate(0 -3)"/></svg>
   </button>
@@ -74,9 +72,8 @@
 <div id="toast" class="toast"></div>
 <div id="modal" class="modal" hidden></div>
 <input type="file" id="jsonFile" accept=".json,application/json" hidden>
-</template>
 
-<script src="logic.js" id="logic-src"></script>
-<script src="app.js" id="app-src"></script>
+<script src="logic.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

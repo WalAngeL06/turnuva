@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Masa tenisi turnuva tablosu: 128 kişilik tek eleme + 3.lük maçı (erkekler).
+"""Masa tenisi turnuva tablosu: erkekler 128, kadınlar 16 kişilik tek eleme + 3.lük maçı.
 
 Çalıştırma:
     python3 turnuva.py            -> tarayıcıda http://127.0.0.1:8765 açılır
     python3 turnuva.py --port 9000 --no-browser
 
-İlk açılışta katılımcılar temiz_liste.csv dosyasından okunur ve erkekler
-128'lik tabloya rastgele yerleştirilir (eksik yerler BAY olur). Arayüzde
+İlk açılışta katılımcılar temiz_liste.csv dosyasından okunur; erkekler 128'lik,
+kadınlar 16'lık tabloya rastgele yerleştirilir (eksik yerler BAY olur). Arayüzde
 "Kaydet" denildiği andan itibaren tablo kayit.json dosyasından yüklenir ve
 bir daha rastgele kura çekilmez.
 
@@ -22,7 +22,6 @@ import random
 import re
 import shutil
 import socket
-import sys
 import threading
 import urllib.request
 import webbrowser
@@ -37,7 +36,6 @@ WEB = BASE / "web"
 KAYIT = BASE / "kayit.json"
 # Yedekler proje klasöründe değil, Masaüstünde durur (TURNUVA_YEDEK_DIR ile değiştirilebilir)
 YEDEK_DIR = Path(os.environ.get("TURNUVA_YEDEK_DIR") or Path.home() / "Desktop" / "turnuva_yedekler")
-ESKI_YEDEK_DIR = BASE / "yedekler"
 YEDEK_SAYISI = 50
 CSV_ADAYLARI = [BASE / "temiz_liste.csv", BASE.parent / "temiz_liste.csv"]
 TABLO_BOYUTU = 128
@@ -91,10 +89,6 @@ IKI_CINSIYETLI = {
     "derya": "K", "ümran": "K", "ülkü": "K", "esen": "K", "elvan": "K", "gökçe": "K",
     "elçin": "K", "ekin": "K", "irmak": "K", "umay": "K", "kader": "K", "sultan": "K",
 }
-
-
-def tr_kucuk(s: str) -> str:
-    return s.replace("İ", "i").replace("I", "ı").lower()
 
 
 _KATLA = str.maketrans("ışğüöçâîû", "isguocaiu")
@@ -235,16 +229,9 @@ def kura_cek(oyuncu_idleri, boyut=TABLO_BOYUTU, rng=None):
     return slots, yedek
 
 
-def yeni_turnuva_bos():
-    durum = {"version": SURUM, "title": VARSAYILAN_BASLIK, "participants": [],
-             "slots": [None] * TABLO_BOYUTU, "results": {}, "savedAt": None, "rev": 0,
-             "women": {"title": KADIN_BASLIK, "slots": [None] * KADIN_TABLO_BOYUTU, "results": {}},
-             "createdAt": datetime.now().isoformat(timespec="seconds")}
-    return durum
-
-
-def yeni_turnuva():
-    kisiler = csv_oku()
+def yeni_turnuva(kisiler=None):
+    """Kayıt yokken ilk durum: CSV'deki kişiler rastgele kurayla iki tabloya yerleşir."""
+    kisiler = csv_oku() if kisiler is None else kisiler
     erkekler = [k["id"] for k in kisiler if k["gender"] == "E"]
     slots, _ = kura_cek(erkekler)
     kadinlar = [k["id"] for k in kisiler if k["gender"] == "K"]
@@ -344,24 +331,6 @@ def kayitli_rev():
         return None
 
 
-def eski_yedekleri_tasi():
-    """Eski sürümün proje klasörüne (turnuva/yedekler) yazdığı yedekleri Masaüstüne taşır."""
-    if not ESKI_YEDEK_DIR.is_dir() or ESKI_YEDEK_DIR.resolve() == YEDEK_DIR.resolve():
-        return 0
-    YEDEK_DIR.mkdir(parents=True, exist_ok=True)
-    tasinan = 0
-    for dosya in sorted(ESKI_YEDEK_DIR.glob("kayit_*.json")):
-        hedef = YEDEK_DIR / dosya.name
-        if not hedef.exists():
-            shutil.move(str(dosya), hedef)
-            tasinan += 1
-    try:
-        ESKI_YEDEK_DIR.rmdir()  # sadece boşsa silinir
-    except OSError:
-        pass
-    return tasinan
-
-
 def kaydet(durum, temel_rev=None, zorla=False):
     dogrula(durum)
     mevcut = kayitli_rev()
@@ -422,9 +391,10 @@ ICERIK_TIPLERI = {
 
 class Isleyici(BaseHTTPRequestHandler):
     server_version = "Turnuva/1.0"
+    ayrintili = False  # --verbose ile açılır
 
     def log_message(self, fmt, *args):
-        if "--verbose" in sys.argv:
+        if self.ayrintili:
             super().log_message(fmt, *args)
 
     def _json(self, veri, kod=HTTPStatus.OK):
@@ -483,7 +453,7 @@ class Isleyici(BaseHTTPRequestHandler):
                     try:
                         TASLAK = yeni_turnuva()
                     except Exception as hata:
-                        TASLAK = yeni_turnuva_bos()
+                        TASLAK = yeni_turnuva([])
                         uyari = f"temiz_liste.csv okunamadı ({hata}); katılımcıları elle ekleyebilirsin."
                 if csv_yolu() is None and not uyari:
                     uyari = "temiz_liste.csv bulunamadı; katılımcıları elle ekleyebilirsin."
@@ -494,7 +464,7 @@ class Isleyici(BaseHTTPRequestHandler):
             except Exception as hata:
                 return self._json({"error": f"temiz_liste.csv okunamadı: {hata}"},
                                   HTTPStatus.INTERNAL_SERVER_ERROR)
-            return self._json({"participants": kisiler, "file": str(csv_yolu() or "")})
+            return self._json({"participants": kisiler})
         self._statik(yol)
 
     def _post(self):
@@ -573,11 +543,12 @@ def bos_port(baslangic):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="128 kişilik masa tenisi turnuva tablosu")
+    ap = argparse.ArgumentParser(description="Masa tenisi turnuva tablosu (erkekler 128, kadınlar 16)")
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--no-browser", action="store_true", help="Tarayıcıyı otomatik açma")
     ap.add_argument("--verbose", action="store_true", help="İstekleri ekrana yaz")
     args = ap.parse_args()
+    Isleyici.ayrintili = args.verbose
 
     if calisan_ornek(args.port):
         adres = f"http://127.0.0.1:{args.port}"
@@ -585,14 +556,13 @@ def main():
         if not args.no_browser:
             webbrowser.open(adres)
         return
-    tasinan = eski_yedekleri_tasi()
     port = bos_port(args.port)
     sunucu = ThreadingHTTPServer(("127.0.0.1", port), Isleyici)
     adres = f"http://127.0.0.1:{port}"
     print("=" * 60)
     print("  Turnuva tablosu çalışıyor:", adres)
     print("  Kayıt dosyası:", KAYIT)
-    print("  Yedekler:", YEDEK_DIR, f"({tasinan} eski yedek buraya taşındı)" if tasinan else "")
+    print("  Yedekler:", YEDEK_DIR)
     yol_csv = csv_yolu()
     print("  Katılımcı listesi:", yol_csv or "bulunamadı (temiz_liste.csv)")
     print("  Kapatmak için bu pencerede Ctrl+C")

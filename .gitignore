@@ -1,5 +1,6 @@
 # Turnuva verisi: katılımcıların telefon numaraları içerir, depoya girmez
-kayit.json
+# (kayit.json, yedekleri ve uygulamadan indirilen JSON yedekleri dahil tüm .json dosyaları)
+*.json
 kayit.json.tmp
 yedekler/
 *.csv
@@ -11,3 +12,4 @@ __pycache__/
 *.pyc
 .DS_Store
 .claude/
+.vscode/

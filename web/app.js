@@ -6,15 +6,6 @@
   const $ = (s, el) => (el || document).querySelector(s);
   const $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
 
-  /* Sayfanın iskeleti <template> içinde durur; çevrimiçi sürüm kendini kaydederken
-   * sayfayı bu değişmemiş kaynaktan yeniden yazar. */
-  const PAGE_TITLE = (document.querySelector('title') || {}).textContent || 'Turnuva Tablosu';
-  const shellTpl = document.getElementById('shell-tpl');
-  if (shellTpl) shellTpl.after(shellTpl.content.cloneNode(true));
-
-  /* Çevrimiçi (paylaşılan link) sürümde turnuva verisi sayfanın içine gömülüdür ve
-   * Kaydet sayfanın yeni bir sürümünü yayınlar. Yerel sürümde veri Python'dan gelir. */
-  const ONLINE = !!document.getElementById('tdata');
   const NARROW = window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
 
   /* Tablo ölçüleri (px) */
@@ -47,15 +38,13 @@
     bannerHtml: null,
     rev: 0,
     autoPick: null,
-    canEdit: !ONLINE,
-    stash: null,
   };
 
   const els = {
     board: $('#board'), canvas: $('#canvas'), panel: $('#panel'), banner: $('#banner'),
     title: $('#title'), saveBtn: $('#saveBtn'), saveStatus: $('#saveStatus'),
     undoBtn: $('#undoBtn'), redoBtn: $('#redoBtn'), toast: $('#toast'), modal: $('#modal'),
-    zoomVal: $('#zoomVal'), dlMenu: $('#dlMenu'), roChip: $('#roChip'), jsonFile: $('#jsonFile'),
+    zoomVal: $('#zoomVal'), dlMenu: $('#dlMenu'), jsonFile: $('#jsonFile'),
   };
 
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => (
@@ -98,7 +87,6 @@
   /* fn durumu değiştirir; değişiklik olduysa geri alma geçmişine eklenir. */
   function mutate(fn, opts) {
     opts = opts || {};
-    if (!app.canEdit) { toast('Bu tabloyu sadece görüntüleyebilirsin.'); return undefined; }
     const before = JSON.stringify(app.state);
     const out = fn(app.state);
     const after = JSON.stringify(app.state);
@@ -284,7 +272,7 @@
     for (const mt of all) {
       const ref = app.els.get(mt.id);
       if (!ref) continue;
-      ref.el.classList.toggle('playable', mt.playable && app.canEdit);
+      ref.el.classList.toggle('playable', mt.playable);
       ref.el.title = mt.isThird ? '3.lük maçı' : `${L.roundName(mt.r, br.R)} · ${mt.m + 1}. maç`;
       const scores = (st.results[mt.id] && st.results[mt.id].scores) || {};
       const firstRound = mt.r === 0 && !mt.isThird;
@@ -315,7 +303,7 @@
         if (c.nm.textContent !== name) c.nm.textContent = name;
         c.nm.title = name === 'BAY' ? 'BAY: rakibi doğrudan bir sonraki tura çıkar' : name;
         c.sc.dataset.pid = pid;
-        c.sc.disabled = !mt.playable || !app.canEdit;
+        c.sc.disabled = !mt.playable;
         if (document.activeElement !== c.sc) c.sc.value = pid && scores[pid] != null ? scores[pid] : '';
       });
     }
@@ -368,7 +356,7 @@
     return `Şu anki tur: ${L.roundName(e.round, app.br.R)}`;
   }
 
-  function personRow(p, sm, opts) {
+  function personRow(p, sm) {
     const slot = app.slotIndex.has(p.id) ? app.slotIndex.get(p.id) : -1;
     const e = sm.get(p.id);
     const champ = app.br.podium.first === p.id;
@@ -380,14 +368,13 @@
     const numCls = slot >= 0 ? 'num' : 'num none';
     const status = statusText(p.id, sm);
     const tip = slot >= 0 ? `Tablodaki yeri: ${slot + 1}${status ? ' · ' + status : ''}` : 'Tablo dışında';
-    const ed = app.canEdit;
-    return `<li class="${cls.join(' ')}" data-pid="${p.id}"${ed && p.gender === app.tab ? ' draggable="true"' : ''} title="${esc(tip)}">` +
+    return `<li class="${cls.join(' ')}" data-pid="${p.id}"${p.gender === app.tab ? ' draggable="true"' : ''} title="${esc(tip)}">` +
       `<span class="handle"></span>` +
       `<span class="${numCls}" data-act="goto">${numTxt}</span>` +
-      `<input class="pname" data-key="name:${p.id}" value="${esc(p.name)}" spellcheck="false"${ed ? '' : ' readonly'}>` +
-      `<button class="g${p.gender === 'K' ? ' k' : ''}" data-act="gender"${ed ? '' : ' disabled'} title="${p.gender === 'E' ? 'Erkek' : 'Kadın'}${ed ? ' — değiştirmek için tıkla' : ''}">${p.gender}</button>` +
-      (ed && p.check ? '<button class="chk" data-act="confirm" title="Cinsiyet isimden kesin anlaşılamadı. Doğruysa tıkla, yanlışsa E/K düğmesine bas.">?</button>' : '') +
-      (!ed || (opts && opts.noDelete) ? '' : '<button class="del" data-act="del" title="Listeden sil">×</button>') +
+      `<input class="pname" data-key="name:${p.id}" value="${esc(p.name)}" spellcheck="false">` +
+      `<button class="g${p.gender === 'K' ? ' k' : ''}" data-act="gender" title="${p.gender === 'E' ? 'Erkek' : 'Kadın'} — değiştirmek için tıkla">${p.gender}</button>` +
+      (p.check ? '<button class="chk" data-act="confirm" title="Cinsiyet isimden kesin anlaşılamadı. Doğruysa tıkla, yanlışsa E/K düğmesine bas.">?</button>' : '') +
+      '<button class="del" data-act="del" title="Listeden sil">×</button>' +
       '</li>';
   }
 
@@ -401,30 +388,25 @@
     const v = cur();
     const unplaced = L.unplaced(v);
     const byes = v.slots.length - v.slots.filter(Boolean).length;
-    let list = '';
-    {
-      const placed = (app.tab === 'K' ? females : males).filter((p) => app.slotIndex.has(p.id))
-        .sort((a, b) => app.slotIndex.get(a.id) - app.slotIndex.get(b.id));
-      if (app.canEdit || unplaced.length) {
-        list += `<div class="dropzone${unplaced.length ? ' warn' : ''}" id="outZone">` +
-          `<div class="zt">Tablo dışında: <b>${unplaced.length}</b>` +
-          (app.canEdit && unplaced.length && byes ? ' <span class="spacer"></span><button class="btn" data-act="fill">BAY yerlerine yerleştir</button>' : '') +
-          '</div>' +
-          (unplaced.length ? '<ul class="plist">' + unplaced.filter(match).map((p) => personRow(p, sm)).join('') + '</ul>' : '') +
-          (app.canEdit ? '<div class="muted">Bir oyuncuyu tablodan çıkarmak için buraya sürükle. Tablo dışındaki birini tablodaki bir yere sürükleyerek yerleştirebilirsin.</div>' : '') +
-          '</div>';
-      }
-      list += '<ul class="plist">' + placed.filter(match).map((p) => personRow(p, sm)).join('') + '</ul>';
-    }
+    const placed = (app.tab === 'K' ? females : males).filter((p) => app.slotIndex.has(p.id))
+      .sort((a, b) => app.slotIndex.get(a.id) - app.slotIndex.get(b.id));
+    const list = `<div class="dropzone${unplaced.length ? ' warn' : ''}" id="outZone">` +
+      `<div class="zt">Tablo dışında: <b>${unplaced.length}</b>` +
+      (unplaced.length && byes ? ' <span class="spacer"></span><button class="btn" data-act="fill">BAY yerlerine yerleştir</button>' : '') +
+      '</div>' +
+      (unplaced.length ? '<ul class="plist">' + unplaced.filter(match).map((p) => personRow(p, sm)).join('') + '</ul>' : '') +
+      '<div class="muted">Bir oyuncuyu tablodan çıkarmak için buraya sürükle. Tablo dışındaki birini tablodaki bir yere sürükleyerek yerleştirebilirsin.</div>' +
+      '</div>' +
+      '<ul class="plist">' + placed.filter(match).map((p) => personRow(p, sm)).join('') + '</ul>';
     const checks = st.participants.filter((p) => p.check && p.gender === app.tab).length;
     return '<h2>Katılımcılar</h2>' +
       `<div class="seg"><button data-tab="E" class="${app.tab === 'E' ? 'active' : ''}">Erkekler (${males.length})</button>` +
       `<button data-tab="K" class="${app.tab === 'K' ? 'active' : ''}">Kadınlar (${females.length})</button></div>` +
       `<input class="search" id="search" data-key="search" placeholder="İsim ara…" value="${esc(app.query)}" autocomplete="off">` +
-      (app.canEdit && checks ? `<p class="muted"><b style="color:var(--orange)">?</b> işaretli ${checks} kişinin cinsiyeti isimden kesin anlaşılamadı, kontrol et.</p>` : '') +
+      (checks ? `<p class="muted"><b style="color:var(--orange)">?</b> işaretli ${checks} kişinin cinsiyeti isimden kesin anlaşılamadı, kontrol et.</p>` : '') +
       list +
-      (app.canEdit ? '<div class="addrow"><input id="addName" data-key="add" placeholder="Yeni kişi ekle (Ad Soyad)" maxlength="120">' +
-      `<button class="btn primary" data-act="add">Ekle</button></div>` : '');
+      '<div class="addrow"><input id="addName" data-key="add" placeholder="Yeni kişi ekle (Ad Soyad)" maxlength="120">' +
+      '<button class="btn primary" data-act="add">Ekle</button></div>';
   }
 
   function renderTools() {
@@ -441,13 +423,11 @@
       `<button class="btn block" data-act="redraw">Yeni kura çek<small>Bütün ${who} bu tabloya baştan rastgele dağıtır ve bu tablonun tüm maç sonuçlarını siler. Diğer tablo değişmez. Kaydedene kadar dosyaya yazılmaz.</small></button>` +
       `<button class="btn block" data-act="fill"${s.unplaced && s.byes ? '' : ' disabled'}>Tablo dışındakileri BAY yerlerine yerleştir<small>${s.unplaced} kişi bekliyor, ${s.byes} BAY yeri var.</small></button>` +
       '<h3>Liste</h3>' +
-      (ONLINE ? '' : '<button class="btn block" data-act="import">CSV’den yeni kişileri al<small>temiz_liste.csv dosyasına sonradan eklenen isimleri ekler; mevcut kişilere ve tabloya dokunmaz.</small></button>') +
+      '<button class="btn block" data-act="import">CSV’den yeni kişileri al<small>temiz_liste.csv dosyasına sonradan eklenen isimleri ekler; mevcut kişilere ve tabloya dokunmaz.</small></button>' +
       '<button class="btn block" data-act="importJson">Kayıt dosyasından yükle (JSON)<small>Tüm kaydı (Erkekler <b>ve</b> Kadınlar tabloları, katılımcı listesi) seçtiğin dosyadakiyle değiştirir; sadece bu sekmeyi değil.</small></button>' +
       '<h3>Sonuçlar</h3>' +
       `<button class="btn block danger" data-act="clear">Bu tablonun maç sonuçlarını temizle<small>${GENDER_LABEL[app.tab]} tablosunun kurası (yerleşimi) aynı kalır, sadece kazananlar ve skorlar silinir.</small></button>` +
-      (ONLINE
-        ? '<p class="muted" style="margin-top:18px">Kaydet’e bastığında bu sayfanın yeni bir sürümü yayınlanır; linki açan herkes güncel tabloyu görür. Önceki sürümler saklanır.</p>'
-        : '<p class="muted" style="margin-top:18px">Kayıt dosyası: <code>turnuva/kayit.json</code><br>Her kayıtta eski hali Masaüstündeki <code>turnuva_yedekler</code> klasörüne yedeklenir.</p>');
+      '<p class="muted" style="margin-top:18px">Kayıt dosyası: <code>turnuva/kayit.json</code><br>Her kayıtta eski hali Masaüstündeki <code>turnuva_yedekler</code> klasörüne yedeklenir.</p>';
   }
 
   function renderPodium() {
@@ -462,18 +442,7 @@
   }
 
   function renderHelp() {
-    if (!app.canEdit) {
-      return '<h2>Nasıl kullanılır?</h2><div class="help"><ol>' +
-        '<li>Bu tablo <b>sadece görüntüleme</b> içindir; sonuçları turnuva yöneticisi girer. Yeni bir sonuç kaydedildiğinde sayfa kendiliğinden güncellenir.</li>' +
-        '<li><b>Oyuncu bulmak:</b> soldaki Katılımcılar listesinde ismini ara; numarasına tıklayınca tabloda o oyuncunun son maçına gider.</li>' +
-        '<li>Bir ismin üstüne gelince o oyuncunun tablodaki yolu mavi çizgiyle işaretlenir.</li>' +
-        '<li><b>Yakınlaştırma:</b> sağ alttaki düğmeler ya da <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + fare tekerleği; %100 yazısına tıklayınca tablo genişliğe sığar.</li>' +
-        '<li>Sağ üstteki mavi düğmeden tur eşleşmelerini metin olarak kopyalayabilir ya da tabloyu resim olarak indirebilirsin.</li>' +
-        '</ol></div>';
-    }
-    const saveHelp = ONLINE
-      ? '<li><b>Kaydet:</b> değişiklikler <b>Kaydet</b>’e basınca bu sayfanın yeni sürümü olarak yayınlanır (<kbd>⌘S</kbd> / <kbd>Ctrl+S</kbd>). Linki açan herkes güncel tabloyu görür; açık sayfalar kendiliğinden yenilenir.</li>'
-      : '<li><b>Kaydet:</b> değişiklikler <b>Kaydet</b>’e basınca dosyaya yazılır (<kbd>⌘S</kbd> / <kbd>Ctrl+S</kbd>). İlk kayıttan sonra uygulama her açılışta bu tabloyu yükler, bir daha rastgele kura çekmez.</li>';
+    const saveHelp = '<li><b>Kaydet:</b> değişiklikler <b>Kaydet</b>’e basınca dosyaya yazılır (<kbd>⌘S</kbd> / <kbd>Ctrl+S</kbd>). İlk kayıttan sonra uygulama her açılışta bu tabloyu yükler, bir daha rastgele kura çekmez.</li>';
     return '<h2>Nasıl kullanılır?</h2><div class="help"><ol>' +
       '<li><b>Kazanan seçmek:</b> maçtaki oyuncunun ismine tıkla; bir sonraki tura geçer. Aynı isme tekrar tıklarsan sonuç silinir.</li>' +
       '<li><b>Skor:</b> ismin sağındaki kutuya yaz (ör. 3 ve 1). İki skor girilince kazanan otomatik seçilir. <kbd>Tab</kbd> ile sonraki kutuya geçebilirsin.</li>' +
@@ -492,7 +461,6 @@
     if (app.pointerDown) { app.panelPending = true; return; }
     app.panelPending = false;
     for (const b of $$('.rail button')) b.classList.toggle('active', b.dataset.panel === (app.panel || 'bracket'));
-    if (app.panel === 'tools' && !app.canEdit) app.panel = 'people';
     if (!app.panel) { els.panel.hidden = true; return; }
     els.panel.hidden = false;
     const active = document.activeElement;
@@ -517,22 +485,13 @@
     app.bannerPending = false;
     const parts = [];
     let warn = false;
-    if (!app.canEdit) {
-      // görüntüleyenlere uyarı gösterme
-    } else if (app.stash) {
-      warn = true;
-      parts.push('<span class="grow"><b>Son değişikliklerin kaydedilemedi:</b> sen kaydederken başka biri bu tabloyu güncelledi ve sayfa onun haliyle yenilendi. ' +
-        'Kendi halini geri yükleyip tekrar kaydedebilirsin (o zaman diğer kişinin değişiklikleri gider).</span>');
-      parts.push('<button class="btn" data-act="stashDrop">Vazgeç</button>');
-      parts.push('<button class="btn primary" data-act="stashRestore">Benim halimi geri yükle</button>');
-    } else if (app.warning) {
+    if (app.warning) {
       warn = true;
       parts.push(`<span class="grow">${esc(app.warning)}</span>`);
     } else if (!app.everSaved) {
       const checks = app.state.participants.filter((p) => p.check);
       parts.push('<span class="grow"><b>Bu kura rastgele çekildi ve henüz kaydedilmedi.</b> İstediğin değişiklikleri yapıp <b>Kaydet</b>’e bas; ' +
-        (ONLINE ? 'kaydettiğinde bu linki açan herkes senin tablonu görür.'
-          : 'kaydettikten sonra uygulama her açılışta bu tabloyu yükler, bir daha rastgele kura çekmez.') +
+        'kaydettikten sonra uygulama her açılışta bu tabloyu yükler, bir daha rastgele kura çekmez.' +
         (checks.length ? `<br>Cinsiyeti kesin anlaşılamayanlar: ${checks.map((p) => `${esc(p.name)} (${p.gender})`).join(', ')} — Katılımcılar listesinden kontrol et.` : '') +
         '</span>');
       parts.push('<button class="btn" data-act="redraw">Yeni kura çek</button>');
@@ -553,14 +512,12 @@
     els.undoBtn.disabled = !app.undo.length;
     els.redoBtn.disabled = !app.redo.length;
     const s = els.saveStatus;
-    s.className = 'save-status' + (dirty && app.canEdit ? ' dirty' : '');
-    if (els.roChip) els.roChip.hidden = app.canEdit;
-    if (!app.canEdit) s.textContent = app.state.savedAt ? `Son güncelleme · ${formatTime(app.state.savedAt)}` : '';
-    else if (app.saving) s.textContent = 'Kaydediliyor…';
+    s.className = 'save-status' + (dirty ? ' dirty' : '');
+    if (app.saving) s.textContent = 'Kaydediliyor…';
     else if (!app.everSaved) s.textContent = '● Henüz kaydedilmedi';
     else if (dirty) s.textContent = '● Kaydedilmemiş değişiklikler';
     else s.textContent = app.state.savedAt ? `Kaydedildi · ${formatTime(app.state.savedAt)}` : 'Kaydedildi';
-    document.title = (dirty && app.canEdit ? '• ' : '') + curTitle();
+    document.title = (dirty ? '• ' : '') + curTitle();
   }
 
   function formatTime(iso) {
@@ -601,16 +558,14 @@
   }
 
   async function save(force) {
-    if (app.saving || !app.canEdit) return;
+    if (app.saving) return;
     commitFocused();
-    if (ONLINE) return saveOnline();
     app.saving = true;
     updateStatus();
     const sent = JSON.parse(JSON.stringify(app.state));
     let conflict = false;
     try {
       const data = await api('/api/state', { state: sent, baseRev: app.rev, force: force === true });
-      sent.savedAt = data.savedAt;
       app.state.savedAt = data.savedAt;
       app.state.rev = data.rev;
       app.rev = data.rev;
@@ -645,7 +600,7 @@
     try {
       const size = cur().slots.length;
       const ids = app.state.participants.filter((p) => p.gender === g).map((p) => p.id);
-      const data = ONLINE ? L.drawSlots(ids, size, secureRandom) : await api('/api/draw', { ids, size });
+      const data = await api('/api/draw', { ids, size });
       if (g !== app.tab) return;
       mutate((s) => { own(s, g).slots = data.slots; own(s, g).results = {}; });
       toast(`Yeni kura çekildi${data.reserves.length ? `; ${data.reserves.length} kişi tabloya sığmadı (tablo dışında)` : ''}. Kaydetmeyi unutma.`);
@@ -694,19 +649,7 @@
     return `${t || 'turnuva'}_${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   }
 
-  async function download(blob, name) {
-    if (ONLINE) {
-      // Paylaşılan sayfada indirme yalnızca platformun indirme izniyle yapılabilir
-      const dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null;
-      if (!dl) { toast('Bu görünümde dosya indirilemiyor.', 'error'); return false; }
-      try {
-        await dl.save({ filename: name, data: blob });
-        return true;
-      } catch (e) {
-        if (e && e.code !== 'declined') toast('İndirilemedi: ' + ((e && e.message) || 'bilinmeyen hata'), 'error');
-        return false;
-      }
-    }
+  function download(blob, name) {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = name;
@@ -714,7 +657,6 @@
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-    return true;
   }
 
   function exportJSON() {
@@ -840,9 +782,10 @@
     ctx.font = `12px ${font}`;
     ctx.fillText(st.title || '', G.PAD_X, H - G.HEAD - 12);
 
-    cv.toBlob(async (blob) => {
+    cv.toBlob((blob) => {
       if (!blob) { toast('Resim oluşturulamadı.', 'error'); return; }
-      if (await download(blob, fileBase() + '.png')) toast('Tablo resmi indirildi.', 'ok');
+      download(blob, fileBase() + '.png');
+      toast('Tablo resmi indirildi.', 'ok');
     }, 'image/png');
   }
 
@@ -1003,14 +946,14 @@
     const side = Number(row.dataset.side);
     const isR0 = /^R0-/.test(mid);
     const slot = isR0 ? Number(mid.slice(3)) * 2 + side : null;
-    return { mid, side, slot, pid: row.dataset.pid || null };
+    return { mid, slot, pid: row.dataset.pid || null };
   }
 
   function bindBoard() {
     const board = els.board;
 
     board.addEventListener('click', (e) => {
-      if (e.target.closest('.sc') || !app.canEdit) return;
+      if (e.target.closest('.sc')) return;
       const row = e.target.closest('.row');
       if (!row) { if (app.selected != null) { app.selected = null; patchBoard(); } return; }
       const info = rowInfo(row);
@@ -1080,7 +1023,7 @@
     /* Sürükle-bırak: 1. tur satırları ve soldaki liste */
     board.addEventListener('dragstart', (e) => {
       const row = e.target.closest && e.target.closest('.row');
-      if (!row || e.target.closest('.sc') || !app.canEdit) { e.preventDefault(); return; }
+      if (!row || e.target.closest('.sc')) { e.preventDefault(); return; }
       const info = rowInfo(row);
       if (info.slot == null) { e.preventDefault(); return; }
       app.drag = { kind: 'slot', slot: info.slot, pid: info.pid };
@@ -1186,7 +1129,7 @@
 
     panel.addEventListener('dragstart', (e) => {
       const row = e.target.closest && e.target.closest('.prow[draggable]');
-      if (!row || e.target.matches('input') || !app.canEdit) return;
+      if (!row || e.target.matches('input')) return;
       app.drag = { kind: 'pid', pid: row.dataset.pid };
       row.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
@@ -1248,8 +1191,6 @@
     else if (act === 'redraw') redraw();
     else if (act === 'import') importCsv();
     else if (act === 'importJson') els.jsonFile.click();
-    else if (act === 'stashRestore') restoreStash();
-    else if (act === 'stashDrop') { stashSet(null); app.stash = null; renderBanner(); }
     else if (act === 'fill') {
       const w0 = winnerCount();
       const n = mutate((s) => L.fillByes(L.viewOf(s, app.tab)));
@@ -1352,7 +1293,7 @@
     document.addEventListener('keydown', (e) => {
       const mod = e.metaKey || e.ctrlKey;
       const typing = e.target.matches && e.target.matches('input, textarea, select');
-      if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); if (app.canEdit) save(); return; }
+      if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); save(); return; }
       if (e.key === 'Escape') {
         closeModal();
         els.dlMenu.hidden = true;
@@ -1365,148 +1306,17 @@
     });
 
     window.addEventListener('beforeunload', (e) => {
-      if (app.state && app.canEdit && isDirty()) { e.preventDefault(); e.returnValue = ''; }
+      if (app.state && isDirty()) { e.preventDefault(); e.returnValue = ''; }
     });
   }
 
-  /* ------------------------------------------------------------------ */
-  /* Çevrimiçi (paylaşılan link) sürüm                                   */
-  /* ------------------------------------------------------------------ */
-
-  /* Platformun eklediği sayfa iskeletindeki küçük sıfırlama stili. Sayfa kendini
-   * yayınlarken iskeleti aynen yeniden kurar. */
-  const SKELETON_RESET = ':root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}';
-  const STASH_KEY = 'turnuva.stash';
-
+  /* Kadınlar tablosunun ilk kurası için rastgele sayı (varsa kriptografik). */
   function secureRandom() {
     try {
       return crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296;
     } catch (e) {
       return Math.random();
     }
-  }
-
-  function stashGet() {
-    try { return JSON.parse(sessionStorage.getItem(STASH_KEY) || 'null'); } catch (e) { return null; }
-  }
-
-  function stashSet(v) {
-    try {
-      if (v) sessionStorage.setItem(STASH_KEY, JSON.stringify(v));
-      else sessionStorage.removeItem(STASH_KEY);
-    } catch (e) { /* oturum depolaması kapalı olabilir */ }
-  }
-
-  function loadEmbedded() {
-    const state = JSON.parse(document.getElementById('tdata').textContent);
-    return { state, saved: !!state.savedAt, warning: null };
-  }
-
-  /* Bu kişi sayfayı düzenleyebilir mi (sahibi ya da düzenleme izni verilen biri)? */
-  async function detectEdit() {
-    if (!window.claude || !window.claude.use) return false;
-    try {
-      const [user, art] = await Promise.all([window.claude.use('user'), window.claude.use('artifact')]);
-      if (!user || !art) return false;
-      return !!(await user.canEdit());
-    } catch (e) {
-      return false;
-    }
-  }
-
-  function setCanEdit(v) {
-    app.canEdit = v;
-    document.body.classList.toggle('ro', !v);
-    els.title.readOnly = !v;
-    if (!v) app.selected = null;
-    recompute();
-    patchBoard();
-    renderPanel();
-    renderBanner();
-    updateStatus();
-  }
-
-  /* Sayfanın tamamını, verisi `state` olacak şekilde yeniden üretir. */
-  function buildDocument(state) {
-    const S = 'script';
-    let reset = SKELETON_RESET;
-    if (!reset) {
-      const st = Array.from(document.head.querySelectorAll('style')).find((x) => x.textContent.includes('[hidden]'));
-      reset = st ? st.textContent : '';
-    }
-    const data = JSON.stringify(state).replace(/</g, '\\u003c')
-      .replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
-    return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>' +
-      reset + '</style></head><body>' + [
-        '<title>' + esc(PAGE_TITLE) + '</title>',
-        document.getElementById('app-css').outerHTML,
-        document.getElementById('shell-tpl').outerHTML,
-        '<' + S + ' type="application/json" id="tdata">' + data + '</' + S + '>',
-        document.getElementById('logic-src').outerHTML,
-        document.getElementById('app-src').outerHTML,
-      ].join('\n') + '\n</body></html>';
-  }
-
-  async function saveOnline() {
-    const art = window.claude && window.claude.use ? await window.claude.use('artifact') : null;
-    if (!art) {
-      setCanEdit(false);
-      toast('Bu görünümde kaydedilemiyor; tablo sadece görüntülenebilir.', 'error');
-      return;
-    }
-    app.saving = true;
-    updateStatus();
-    const next = JSON.parse(JSON.stringify(app.state));
-    next.savedAt = new Date().toISOString();
-    next.rev = (app.rev || 0) + 1;
-    const prevCanon = app.savedCanon;
-    // Yayın başarılı olunca sayfa yenilenir: "çıkılsın mı?" sorusu çıkmasın, değişiklikler
-    // de çakışma olursa geri yüklenebilsin diye bu sekmede saklansın.
-    stashSet({ state: next });
-    app.savedCanon = canon(app.state);
-    try {
-      await art.publish(buildDocument(next));
-      toast('Kaydedildi ✓ Linki açan herkes bu hali görür.', 'ok');
-    } catch (e) {
-      const code = (e && e.code) || 'upstream_error';
-      if (code === 'conflict') {
-        toast('Bu arada başka biri kaydetti; sayfa onun haliyle yenileniyor.', 'warn');
-        return;
-      }
-      stashSet(null);
-      app.savedCanon = prevCanon;
-      if (['not_writer', 'not_granted', 'not_declared', 'consent_required', 'capability_disabled', 'capability_removed'].includes(code)) {
-        setCanEdit(false);
-        toast('Bu tabloyu düzenleme yetkin yok; sadece görüntüleyebilirsin.', 'error');
-      } else if (code === 'rate_limited') {
-        toast('Çok sık kaydedildi. Birkaç saniye bekleyip tekrar Kaydet’e bas.', 'error');
-      } else if (code === 'too_large') {
-        toast('Tablo verisi kaydedilemeyecek kadar büyük.', 'error');
-      } else {
-        toast('Kaydedilemedi, tekrar dene. (' + code + ')', 'error');
-      }
-    } finally {
-      app.saving = false;
-      updateStatus();
-    }
-  }
-
-  function restoreStash() {
-    const st = app.stash;
-    app.stash = null;
-    stashSet(null);
-    if (!st) { renderBanner(); return; }
-    mutate((s) => {
-      s.title = st.title;
-      s.participants = st.participants;
-      s.slots = st.slots;
-      s.results = st.results || {};
-      s.deleted = st.deleted || [];
-      if (st.women) s.women = st.women;
-      for (const g of L.genders(s)) L.normalize(L.viewOf(s, g));
-    });
-    els.title.value = curTitle();
-    toast('Değişikliklerin geri yüklendi. Kalıcı olması için Kaydet’e bas.');
   }
 
   /* Kayıt dosyası (kayit.json ya da indirilen yedek) ile tabloyu değiştirir. */
@@ -1564,7 +1374,8 @@
       if (!ok) return;
       const clean = (p) => {
         const q = { id: p.id, name: String(p.name).replace(/\s+/g, ' ').trim().slice(0, 120), gender: p.gender, check: !!p.check };
-        if (!ONLINE) { if (p.phone) q.phone = String(p.phone); if (p.src) q.src = String(p.src); }
+        if (p.phone) q.phone = String(p.phone);
+        if (p.src) q.src = String(p.src);
         return q;
       };
       mutate((s) => {
@@ -1572,9 +1383,7 @@
         s.participants = st.participants.map(clean);
         s.slots = st.slots.map((x) => x || null);
         s.results = JSON.parse(JSON.stringify(st.results || {}));
-        s.deleted = (Array.isArray(st.deleted) ? st.deleted : []).map((d) => (ONLINE
-          ? { name: String((d && d.name) || '') }
-          : { name: String((d && d.name) || ''), src: String((d && d.src) || ''), phone: String((d && d.phone) || '') }));
+        s.deleted = (Array.isArray(st.deleted) ? st.deleted : []).map((d) => ({ name: String((d && d.name) || ''), src: String((d && d.src) || ''), phone: String((d && d.phone) || '') }));
         if (st.women) {
           s.women = {
             title: String(st.women.title || WOMEN_TITLE).slice(0, 80),
@@ -1618,11 +1427,10 @@
     if (state.women && Array.isArray(state.women.slots)) {
       if (!state.women.results) state.women.results = {};
       if (!state.women.title) state.women.title = WOMEN_TITLE;
-      return false;
+      return;
     }
     const ids = state.participants.filter((p) => p.gender === 'K').map((p) => p.id);
     state.women = { title: WOMEN_TITLE, slots: L.drawSlots(ids, WOMEN_SIZE, secureRandom).slots, results: {} };
-    return true;
   }
 
   /* ------------------------------------------------------------------ */
@@ -1638,11 +1446,9 @@
     else if (NARROW) app.panel = null;
     let data;
     try {
-      data = ONLINE ? loadEmbedded() : await api('/api/state');
+      data = await api('/api/state');
     } catch (e) {
-      els.board.innerHTML = ONLINE
-        ? '<p style="padding:40px;color:#ffb4ae">Tablo verisi okunamadı.</p>'
-        : '<p style="padding:40px;color:#ffb4ae">Uygulama verisi alınamadı. Python uygulamasının (turnuva.py) açık olduğundan emin ol.</p>';
+      els.board.innerHTML = '<p style="padding:40px;color:#ffb4ae">Uygulama verisi alınamadı. Python uygulamasının (turnuva.py) açık olduğundan emin ol.</p>';
       return;
     }
     app.state = data.state;
@@ -1664,20 +1470,7 @@
     buildBoard();
     const z = parseFloat(store('zoom')) || (NARROW ? 0.8 : 1);
     if (z !== 1) setZoom(z);
-    if (ONLINE) {
-      setCanEdit(false);
-      detectEdit().then((ok) => {
-        if (!ok) return;
-        const st = stashGet();
-        if (st && st.state) {
-          if (st.state.savedAt === app.state.savedAt && st.state.rev === app.state.rev) stashSet(null);
-          else app.stash = st.state;
-        }
-        setCanEdit(true);
-      });
-    } else {
-      refresh();
-    }
+    refresh();
   }
 
   init();

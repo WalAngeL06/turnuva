@@ -39,10 +39,6 @@
     return `${r + 1}. Tur`;
   }
 
-  function clone(state) {
-    return JSON.parse(JSON.stringify(state));
-  }
-
   function participantMap(state) {
     const map = new Map();
     for (const p of state.participants) map.set(p.id, p);
@@ -125,7 +121,7 @@
     const byId = new Map();
     for (const list of rounds) for (const mt of list) byId.set(mt.id, mt);
     if (third) byId.set(THIRD, third);
-    return { size, R, rounds, third, final, podium, byId };
+    return { R, rounds, third, podium, byId };
   }
 
   /* Geçersiz hale gelen sonuçları (artık o maçta olmayan oyuncu vb.) temizler.
@@ -175,13 +171,6 @@
       }
       state.results[mid] = next;
     }
-    normalize(state);
-    return true;
-  }
-
-  function clearResult(state, mid) {
-    if (!state.results[mid]) return false;
-    delete state.results[mid];
     normalize(state);
     return true;
   }
@@ -267,7 +256,6 @@
     const placed = new Set(view.slots.filter(Boolean));
     return view.participants.filter((p) => p.gender === g && !placed.has(p.id));
   }
-  const unplacedMales = unplaced;
 
   /* Tablo dışındaki kişileri boş (BAY) yerlere rastgele yerleştirir. Önce
    * BAY-BAY maçlarının birer tarafı doldurulur (böylece BAY-BAY maçı kalmaz),
@@ -312,9 +300,9 @@
     return placed;
   }
 
-  /* turnuva.py'deki kura_cek'in aynısı (çevrimiçi sürümde Python sunucusu yok):
-   * oyuncuları karıştırır, BAY'ları her maçta en fazla bir tane olacak şekilde
-   * tabloya eşit yayar. { slots, reserves } döndürür. */
+  /* turnuva.py'deki kura_cek'in tarayıcıdaki aynısı (kadınlar tablosu kayıtta yoksa
+   * ilk kura için): oyuncuları karıştırır, BAY'ları her maçta en fazla bir tane olacak
+   * şekilde tabloya eşit yayar. { slots, reserves } döndürür. */
   function drawSlots(ids, size, rng) {
     rng = rng || Math.random;
     const randrange = (lo, hi) => lo + Math.floor(rng() * (hi - lo));
@@ -403,25 +391,14 @@
     return removed;
   }
 
-  /* Bir oyuncunun turnuvadaki durumu: son maçı, elendiği tur, derecesi. */
+  /* Bir oyuncunun tablodaki son maçı (3.lük maçı dahil). */
   function playerStatus(br, pid) {
     let last = null;
-    let eliminatedIn = null;
     for (const list of br.rounds) {
-      for (const mt of list) {
-        if (mt.sides.some((s) => s.id === pid)) {
-          last = mt;
-          if (mt.loser.id === pid) eliminatedIn = mt.r;
-        }
-      }
+      for (const mt of list) if (mt.sides.some((s) => s.id === pid)) last = mt;
     }
     if (br.third && br.third.sides.some((s) => s.id === pid)) last = br.third;
-    let place = null;
-    if (br.podium.first === pid) place = 1;
-    else if (br.podium.second === pid) place = 2;
-    else if (br.podium.third === pid) place = 3;
-    else if (br.podium.fourth === pid) place = 4;
-    return { last, eliminatedIn, place };
+    return { last };
   }
 
   /* Toplam maç sayısı: her gerçek maç bir oyuncuyu eler (BAY kimseyi elemez),
@@ -447,10 +424,9 @@
   }
 
   return {
-    THIRD, PENDING, BYE, matchId, roundCount, roundName, clone, participantMap,
-    computeBracket, normalize, toggleWinner, clearResult, setScore, swapSlots,
-    placeInSlot, removeFromBracket, unplacedMales, fillByes, setGender, rename,
-    addParticipant, deleteParticipant, playerStatus, stats, slotOf, trKey, drawSlots,
-    viewOf, genders, unplaced,
+    THIRD, matchId, roundCount, roundName, participantMap, computeBracket, normalize,
+    toggleWinner, setScore, swapSlots, placeInSlot, removeFromBracket, fillByes,
+    setGender, rename, addParticipant, deleteParticipant, playerStatus, stats, slotOf,
+    trKey, drawSlots, viewOf, genders, unplaced,
   };
 });

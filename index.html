@@ -351,14 +351,20 @@
       </div>
 
       <!-- Match Players Display -->
-      <div class="bg-slate-900/80 rounded-xl p-3.5 border border-slate-800 space-y-2">
+      <div class="bg-slate-900/80 rounded-xl p-3.5 border border-slate-800 space-y-3">
         <div class="flex items-center justify-between text-xs">
           <span class="text-slate-400">1. Oyuncu:</span>
-          <span id="edit-p1-name" class="font-bold text-white"></span>
+          <div class="text-right">
+            <span id="edit-p1-name" class="font-bold text-white"></span>
+            <div id="edit-p1-phone-box" class="text-[11px] text-emerald-400 mt-0.5"></div>
+          </div>
         </div>
-        <div class="flex items-center justify-between text-xs">
+        <div class="flex items-center justify-between text-xs border-t border-slate-800/60 pt-2">
           <span class="text-slate-400">2. Oyuncu:</span>
-          <span id="edit-p2-name" class="font-bold text-white"></span>
+          <div class="text-right">
+            <span id="edit-p2-name" class="font-bold text-white"></span>
+            <div id="edit-p2-phone-box" class="text-[11px] text-emerald-400 mt-0.5"></div>
+          </div>
         </div>
       </div>
 
@@ -587,6 +593,25 @@
     // Helpers
     const $ = (sel) => document.querySelector(sel);
     const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    function getAdminPin() {
+      return localStorage.getItem('turnuva_custom_pin') || '1923';
+    }
+
+    function decryptPhone(cipher, pin = null) {
+      if (!cipher) return '';
+      try {
+        const key = String(pin || getAdminPin());
+        const raw = atob(cipher);
+        let out = '';
+        for (let i = 0; i < raw.length; i++) {
+          out += String.fromCharCode(raw.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+        }
+        return out;
+      } catch (e) {
+        return '';
+      }
+    }
 
     function showToast(msg, type = 'success') {
       const toast = $('#toast');
@@ -1080,6 +1105,8 @@
         const lastMatch = playerMatches[playerMatches.length - 1];
         const isEliminated = lastMatch && lastMatch.winner && lastMatch.winner.id && lastMatch.winner.id !== p.id;
         const isChamp = computedBracket.podium && computedBracket.podium.first === p.id;
+        const phone = (isAdmin && p.phone_enc) ? decryptPhone(p.phone_enc) : ((isAdmin && p.phone) ? p.phone : '');
+        const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
 
         return `
           <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-4">
@@ -1090,7 +1117,15 @@
                 </div>
                 <div>
                   <h3 class="font-bold text-white text-base">${p.name}</h3>
-                  <span class="text-xs text-slate-400">${currentGender === 'E' ? 'Erkekler Tablosu' : 'Kadınlar Tablosu'}</span>
+                  <div class="flex flex-wrap items-center gap-2 mt-0.5">
+                    <span class="text-xs text-slate-400">${currentGender === 'E' ? 'Erkekler Tablosu' : 'Kadınlar Tablosu'}</span>
+                    ${phone ? `
+                      <span class="text-slate-600 hidden sm:inline">•</span>
+                      <span class="font-mono text-[11px] text-emerald-400 font-semibold bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-500/30">${phone}</span>
+                      <a href="tel:${phone}" class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-800 hover:bg-emerald-700 text-white font-semibold transition" title="Ara">📞 Ara</a>
+                      <a href="https://wa.me/${cleanPhone}" target="_blank" rel="noopener noreferrer" class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500 text-slate-950 font-bold hover:bg-emerald-400 transition" title="WhatsApp">💬 WP</a>
+                    ` : ''}
+                  </div>
                 </div>
               </div>
               <div>
@@ -1236,6 +1271,28 @@
       $('#edit-p2-name').textContent = n2;
       $('#edit-p1-label').textContent = n1;
       $('#edit-p2-label').textContent = n2;
+
+      // Render Phone Numbers (Admin only)
+      const renderPhoneBadge = (boxId, side) => {
+        const box = $(boxId);
+        if (!box) return;
+        box.innerHTML = '';
+        if (!isAdmin || !side || side.type !== 'player') return;
+        const pObj = pmap.get(side.id);
+        if (!pObj) return;
+        const phone = pObj.phone_enc ? decryptPhone(pObj.phone_enc) : (pObj.phone || '');
+        if (!phone) return;
+        const cleanPhone = phone.replace(/[^0-9]/g, '');
+        box.innerHTML = `
+          <div class="inline-flex items-center space-x-1.5 bg-emerald-950/80 border border-emerald-500/40 rounded-lg px-2 py-0.5 mt-1">
+            <span class="font-mono text-emerald-300 text-[11px] font-semibold">${phone}</span>
+            <a href="tel:${phone}" class="px-1.5 py-0.5 rounded bg-emerald-700/80 hover:bg-emerald-600 text-white text-[10px] font-semibold transition" title="Telefonla Ara">📞 Ara</a>
+            <a href="https://wa.me/${cleanPhone}" target="_blank" rel="noopener noreferrer" class="px-1.5 py-0.5 rounded bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[10px] font-bold transition" title="WhatsApp Mesaj Gönder">💬 WP</a>
+          </div>
+        `;
+      };
+      renderPhoneBadge('#edit-p1-phone-box', p1);
+      renderPhoneBadge('#edit-p2-phone-box', p2);
 
       $('#edit-match-time').value = res.time || '';
       $('#edit-match-table').value = res.table || '';
@@ -1418,14 +1475,17 @@
       openModal('sync-modal');
     }
 
-    // Sanitize tournament data for public GitHub (Strip any sensitive fields)
+    // Sanitize tournament data for public GitHub (Strip any sensitive fields, retain encrypted phone)
     function sanitizeForPublic(data) {
       const copy = JSON.parse(JSON.stringify(data));
       if (Array.isArray(copy.participants)) {
         copy.participants = copy.participants.map(p => ({
           id: p.id,
           name: p.name,
-          gender: p.gender
+          gender: p.gender,
+          check: p.check || false,
+          src: p.src || '',
+          phone_enc: p.phone_enc || undefined
         }));
       }
       return copy;

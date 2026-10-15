@@ -1,79 +1,1526 @@
-<!doctype html>
-<html lang="tr">
+<!DOCTYPE html>
+<html lang="tr" class="dark">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Turnuva Tablosu</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232196f3'/%3E%3Cpath d='M7 8h6v6h4M7 24h6v-6h4m0-4v4h8' stroke='white' stroke-width='2.4' fill='none'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masa Tenisi Turnuvası - Canlı Fikstür & Sonuçlar</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2310b981'/%3E%3Cpath d='M8 10h6v6h4M8 22h6v-6h4m0-4v4h6' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              900: '#064e3b',
+              950: '#022c22'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.65);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .glass-card-hover {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card-hover:hover {
+      border-color: rgba(16, 185, 129, 0.35);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px -6px rgba(16, 185, 129, 0.15);
+    }
+    .pulse-dot {
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0b0f17; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #10b981; }
+  </style>
 </head>
-<body>
-<header class="topbar">
-  <div class="brand">Turnuva <b>Tablosu</b></div>
-  <input id="title" class="title-input" spellcheck="false" maxlength="80" title="Turnuva adını değiştirmek için tıkla">
-  <div class="spacer"></div>
-  <span id="saveStatus" class="save-status"></span>
-  <button id="undoBtn" class="icon-btn" title="Geri al (⌘Z)" disabled>
-    <svg viewBox="0 0 24 24"><path d="M9 7 4 12l5 5M4 12h10a6 6 0 0 1 0 12h-2" transform="translate(0 -3)"/></svg>
-  </button>
-  <button id="redoBtn" class="icon-btn" title="Yinele (⇧⌘Z)" disabled>
-    <svg viewBox="0 0 24 24"><path d="m15 7 5 5-5 5m5-5H10a6 6 0 0 0 0 12h2" transform="translate(0 -3)"/></svg>
-  </button>
-  <button id="saveBtn" class="btn-save" title="Kaydet (⌘S)">Kaydet</button>
-  <div class="dl-wrap">
-    <button id="dlBtn" class="btn-dl" title="Dışa aktar">
-      <svg viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v3h16v-3"/></svg>
-    </button>
-    <div id="dlMenu" class="menu" hidden>
-      <button data-act="png">Tabloyu resim olarak indir (PNG)</button>
-      <button data-act="text">Eşleşme listesi (WhatsApp için)</button>
-      <button data-act="json">Kayıt dosyasını indir (JSON yedek)</button>
+<body class="bg-[#0b0f17] text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- ADMIN BAR (Only visible when Admin Mode is ON) -->
+  <div id="admin-banner" class="hidden sticky top-0 z-50 bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 border-b border-amber-600/40 text-amber-100 px-4 py-2.5 shadow-xl">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div class="flex items-center space-x-2">
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full font-bold bg-amber-500 text-slate-950 text-[10px] uppercase tracking-wider">
+          👑 Yönetici Modu Aktif
+        </span>
+        <span class="hidden sm:inline text-amber-200">Değişiklikler sitede anında güncellenir.</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button onclick="openAnnouncementModal()" class="px-2.5 py-1 rounded bg-amber-800/80 hover:bg-amber-700 text-amber-200 border border-amber-600/50 flex items-center space-x-1 transition active:scale-95">
+          <span>📢</span><span>Duyuru Yaz</span>
+        </button>
+        <button onclick="openWhatsAppModal()" class="px-2.5 py-1 rounded bg-emerald-800/80 hover:bg-emerald-700 text-emerald-100 border border-emerald-600/50 flex items-center space-x-1 transition active:scale-95">
+          <span>📱</span><span>WhatsApp Metni</span>
+        </button>
+        <button onclick="openSyncModal()" class="px-2.5 py-1 rounded bg-slate-900/90 hover:bg-slate-800 text-slate-100 border border-slate-700 flex items-center space-x-1 transition active:scale-95 font-semibold">
+          <span>🚀</span><span>Kaydet & Yayınla</span>
+        </button>
+        <button onclick="exitAdminMode()" class="px-2.5 py-1 rounded bg-red-950 hover:bg-red-900 text-red-200 border border-red-700/60 transition active:scale-95">
+          Çıkış
+        </button>
+      </div>
     </div>
   </div>
-</header>
 
-<div class="main">
-  <nav class="rail">
-    <button data-panel="bracket" title="Sadece tabloyu göster">
-      <svg viewBox="0 0 24 24"><path d="M3 5h6v4h5M3 19h6v-4h5m0-6v6h7M3 9h6M3 15h6"/></svg>
-    </button>
-    <button data-panel="people" class="active" title="Katılımcılar">
-      <svg viewBox="0 0 24 24" class="fill"><circle cx="12" cy="8" r="3.4"/><circle cx="5.5" cy="10" r="2.6"/><circle cx="18.5" cy="10" r="2.6"/><path d="M5.5 20c0-4 2.9-6.6 6.5-6.6s6.5 2.6 6.5 6.6zM.8 19c0-3 1.8-5 4.4-5 .8 0 1.4.2 2 .5C5.700 15.700 4.900 17.300 4.800 19zm22.4 0c0-3-1.8-5-4.4-5-.8 0-1.4.2-2 .5 1.500 1.200 2.300 2.800 2.400 4.500z"/></svg>
-    </button>
-    <button data-panel="tools" title="Kura ve araçlar">
-      <svg viewBox="0 0 24 24" class="fill"><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.400 7.400 0 0 0-1.700-1L15 3h-4l-.4 2.700a7.400 7.400 0 0 0-1.700 1l-2.500-1-2 3.500L6.600 11a7.600 7.600 0 0 0 0 2l-2.100 1.600 2 3.500 2.500-1a7.400 7.400 0 0 0 1.700 1L11 21h4l.4-2.700a7.400 7.400 0 0 0 1.700-1l2.500 1 2-3.500zM13 15.500a3.500 3.500 0 1 1 0-7 3.500 3.500 0 0 1 0 7z" transform="translate(-1 0)"/></svg>
-    </button>
-    <div class="rail-spacer"></div>
-    <button data-panel="podium" title="Dereceler">
-      <svg viewBox="0 0 24 24" class="fill"><path d="M3 18 2 7l5.500 4L12 4l4.500 7L22 7l-1 11zM3 20h18v2H3z"/></svg>
-    </button>
-    <button data-panel="help" title="Nasıl kullanılır?">
-      <svg viewBox="0 0 24 24"><path d="M9 9a3 3 0 1 1 4.500 2.600c-.9.5-1.500 1.200-1.500 2.200V15M12 19v.5"/></svg>
-    </button>
-  </nav>
+  <!-- MAIN HEADER -->
+  <header class="sticky top-0 z-40 bg-[#0b0f17]/90 backdrop-blur-md border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+      
+      <!-- Brand & Status -->
+      <div class="flex items-center space-x-3.5">
+        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-brand-600 to-teal-400 flex items-center justify-center text-2xl shadow-lg shadow-brand-500/25 ring-1 ring-white/15">
+          🏓
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 id="tournament-title" class="font-extrabold text-base sm:text-xl text-white tracking-tight leading-tight">
+              Masa Tenisi Turnuvası
+            </h1>
+          </div>
+          <div class="flex items-center space-x-2 text-xs text-slate-400 mt-0.5">
+            <span class="inline-flex items-center">
+              <span class="w-2 h-2 rounded-full bg-brand-400 pulse-dot mr-1.5"></span>
+              <span class="text-emerald-400 font-semibold">Canlı Fikstür</span>
+            </span>
+            <span class="text-slate-600">•</span>
+            <span id="last-updated-text" class="text-slate-400">Yükleniyor...</span>
+          </div>
+        </div>
+      </div>
 
-  <aside id="panel" class="panel"></aside>
+      <!-- Controls & Admin Toggle -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- Gender Selectors -->
+        <div class="bg-slate-900/90 p-1 rounded-xl border border-slate-800 flex items-center text-xs font-semibold">
+          <button id="tab-btn-E" onclick="switchGender('E')" class="px-3 py-1.5 rounded-lg bg-brand-600 text-white shadow-sm transition active:scale-95 flex items-center space-x-1.5">
+            <span>Erkekler</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-brand-800/80 text-brand-200">128</span>
+          </button>
+          <button id="tab-btn-K" onclick="switchGender('K')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition active:scale-95 flex items-center space-x-1.5">
+            <span>Kadınlar</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300">16</span>
+          </button>
+        </div>
 
-  <section id="canvas" class="canvas" tabindex="-1">
-    <div id="banner" class="banner" hidden></div>
-    <div id="board" class="board"></div>
-  </section>
+        <!-- Refresh button -->
+        <button id="refresh-btn" onclick="fetchTournamentData(true)" title="Verileri Yenile" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 flex items-center transition active:scale-95">
+          <svg id="refresh-icon" class="w-4 h-4 sm:mr-1.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          <span class="hidden sm:inline">Yenile</span>
+        </button>
 
-  <div class="zoombar">
-    <button id="zoomOut" title="Uzaklaştır">−</button>
-    <button id="zoomVal" title="Genişliğe sığdır / %100">%100</button>
-    <button id="zoomIn" title="Yakınlaştır">+</button>
-    <button id="fullBtn" title="Tam ekran">
-      <svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg>
-    </button>
+        <!-- Admin Login Button -->
+        <button id="admin-login-btn" onclick="promptAdminLogin()" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-900 hover:bg-amber-950/40 border border-slate-800 hover:border-amber-600/40 text-xs text-amber-300 flex items-center transition active:scale-95 font-medium">
+          <span class="sm:mr-1.5">🔒</span>
+          <span class="hidden sm:inline">Yönetim</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+    <!-- ANNOUNCEMENT BANNER -->
+    <div id="announcement-banner" class="hidden rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border border-amber-500/30 p-4 sm:p-5 shadow-lg shadow-amber-950/20">
+      <div class="flex items-start space-x-3.5">
+        <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-lg shrink-0 border border-amber-500/30">
+          📢
+        </div>
+        <div class="flex-grow">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">Komite Canlı Duyurusu</span>
+            <span id="announcement-time" class="text-[11px] text-amber-300/70 font-mono"></span>
+          </div>
+          <p id="announcement-content" class="text-sm sm:text-base text-amber-100 font-medium mt-1 leading-relaxed"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK STATS BENTO -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      <div class="glass-card rounded-2xl p-4 border border-slate-800/80">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+          <span>Toplam Maç</span>
+          <span class="text-slate-500">🏓</span>
+        </div>
+        <p id="stat-total-matches" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">-</p>
+        <p id="stat-players-count" class="text-[11px] text-slate-400 mt-1">- katılımcı</p>
+      </div>
+      <div class="glass-card rounded-2xl p-4 border border-slate-800/80">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+          <span>Tamamlanan</span>
+          <span class="text-emerald-400">✓</span>
+        </div>
+        <p id="stat-completed-matches" class="text-2xl sm:text-3xl font-extrabold text-emerald-400 mt-1">-</p>
+        <p id="stat-completed-percent" class="text-[11px] text-emerald-500/80 mt-1">%0 tamamlandı</p>
+      </div>
+      <div class="glass-card rounded-2xl p-4 border border-slate-800/80">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+          <span>Canlı Oynanan</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
+        </div>
+        <p id="stat-live-matches" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">-</p>
+        <p id="stat-tables-active" class="text-[11px] text-slate-400 mt-1">masalarda</p>
+      </div>
+      <div class="glass-card rounded-2xl p-4 border border-slate-800/80">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+          <span>Kalan Maç</span>
+          <span class="text-amber-400">⏳</span>
+        </div>
+        <p id="stat-remaining-matches" class="text-2xl sm:text-3xl font-extrabold text-amber-300 mt-1">-</p>
+        <p class="text-[11px] text-slate-400 mt-1">final yolunda</p>
+      </div>
+    </div>
+
+    <!-- MAIN VIEW NAVIGATION TABS -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+      <nav class="flex items-center space-x-1 sm:space-x-2 overflow-x-auto pb-1 sm:pb-0" id="view-tabs">
+        <button onclick="switchView('bracket')" id="tab-view-bracket" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-brand-600 text-white shadow-sm flex items-center space-x-2 transition active:scale-95 shrink-0">
+          <span>🏆</span><span>Turnuva Ağacı</span>
+        </button>
+        <button onclick="switchView('tables')" id="tab-view-tables" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center space-x-2 transition active:scale-95 shrink-0">
+          <span>🏓</span><span>Masa Durumu</span>
+        </button>
+        <button onclick="switchView('search')" id="tab-view-search" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center space-x-2 transition active:scale-95 shrink-0">
+          <span>🔍</span><span>Oyuncu Ara & Fikstürüm</span>
+        </button>
+        <button onclick="switchView('podium')" id="tab-view-podium" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center space-x-2 transition active:scale-95 shrink-0">
+          <span>🥇</span><span>Dereceler</span>
+        </button>
+      </nav>
+
+      <!-- Global Filter or Search inside view -->
+      <div class="relative w-full sm:w-64">
+        <input type="text" id="global-search-input" oninput="handleSearch(this.value)" placeholder="Oyuncu adı veya maç ara..." class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
+        <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+    </div>
+
+    <!-- VIEW 1: BRACKET (TURNUVA AĞACI) -->
+    <section id="view-bracket-container" class="space-y-5">
+      
+      <!-- Round Filter Pills -->
+      <div class="flex items-center space-x-2 overflow-x-auto pb-2" id="round-pills-container">
+        <!-- Dynamically rendered round pills -->
+      </div>
+
+      <!-- Match Cards Grid -->
+      <div id="bracket-matches-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <!-- Dynamically rendered matches -->
+      </div>
+
+    </section>
+
+    <!-- VIEW 2: TABLES (MASA DURUMU & SALON) -->
+    <section id="view-tables-container" class="hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-base sm:text-lg font-bold text-white">🏓 Salon Masa Durumları</h2>
+          <p class="text-xs text-slate-400">Masalarda oynanan canlı maçlar ve sırada bekleyen eşleşmeler</p>
+        </div>
+      </div>
+      <div id="tables-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Dynamically rendered table cards -->
+      </div>
+    </section>
+
+    <!-- VIEW 3: SEARCH & PLAYER FINDER -->
+    <section id="view-search-container" class="hidden space-y-6 max-w-3xl mx-auto">
+      <div class="glass-card rounded-2xl p-6 border border-slate-800 text-center space-y-3">
+        <h2 class="text-lg font-bold text-white">🔍 Oyuncu Fikstürü & Maç Geçmişi</h2>
+        <p class="text-xs text-slate-400">Kendi adını yazarak bir sonraki maçını, masanı, saatini ve turnuva durumunu canlı öğren</p>
+        <div class="relative max-w-md mx-auto pt-2">
+          <input type="text" id="player-finder-input" oninput="renderPlayerFinder(this.value)" placeholder="Örn: Ahmet Yılmaz, Caner Kaya..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20">
+        </div>
+      </div>
+
+      <div id="player-finder-results" class="space-y-4">
+        <!-- Results rendered here -->
+      </div>
+    </section>
+
+    <!-- VIEW 4: PODIUM & DERECE -->
+    <section id="view-podium-container" class="hidden space-y-6 max-w-4xl mx-auto">
+      <div class="text-center space-y-2">
+        <h2 class="text-xl sm:text-2xl font-extrabold text-white">🏆 Turnuva Podyumu & Dereceler</h2>
+        <p class="text-xs sm:text-sm text-slate-400">Büyük Final ve 3.lük maçının tamamlanmasıyla belirlenen sıralama</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6 items-end" id="podium-cards-grid">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- 3rd & 4th match card -->
+      <div id="third-place-match-card" class="mt-8"></div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-auto border-t border-slate-900 bg-[#070a0f] py-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center space-x-2">
+        <span class="text-slate-400 font-semibold">Masa Tenisi Topluluğu</span>
+        <span>•</span>
+        <span>Canlı Turnuva Portalı</span>
+      </div>
+      <div>
+        <span>GitHub Pages üzerinde sıfır gecikmeyle yayınlanmaktadır.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ======================================================== -->
+  <!-- MODALS -->
+  <!-- ======================================================== -->
+
+  <!-- 1. ADMIN LOGIN MODAL -->
+  <div id="admin-login-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-md rounded-2xl p-6 border border-slate-700 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2 text-amber-400">
+          <span class="text-xl">🔒</span>
+          <h3 class="font-bold text-base text-white">Yönetici Girişi</h3>
+        </div>
+        <button onclick="closeModal('admin-login-modal')" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+      <p class="text-xs text-slate-300">
+        Turnuva komitesi için maç saatlerini, masaları, skorları ve BAY geçişlerini güncelleme paneli.
+      </p>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Komite PIN Kodu:</label>
+        <input type="password" id="admin-pin-input" placeholder="PIN kodunu girin (Varsayılan: 1923)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-brand-500 font-mono tracking-widest">
+        <p class="text-[11px] text-slate-500 mt-1">İpucu: İlk kurulum için komite varsayılan PIN: <b>1923</b></p>
+      </div>
+      <div class="flex justify-end space-x-2 pt-2">
+        <button onclick="closeModal('admin-login-modal')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300">Vazgeç</button>
+        <button onclick="submitAdminLogin()" class="px-5 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950">Giriş Yap</button>
+      </div>
+    </div>
   </div>
-</div>
 
-<div id="toast" class="toast"></div>
-<div id="modal" class="modal" hidden></div>
-<input type="file" id="jsonFile" accept=".json,application/json" hidden>
+  <!-- 2. MATCH EDIT MODAL (WHATSAPP ACTIONS ON THE WEB!) -->
+  <div id="match-edit-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="glass-panel w-full max-w-lg rounded-2xl p-6 border border-slate-700 space-y-5 shadow-2xl my-8">
+      
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <span id="edit-modal-round-tag" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-brand-900/60 text-brand-300 border border-brand-500/30"></span>
+          <h3 id="edit-modal-title" class="font-bold text-base text-white mt-1">Maçı Düzenle</h3>
+        </div>
+        <button onclick="closeModal('match-edit-modal')" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
 
-<script src="logic.js"></script>
-<script src="app.js"></script>
+      <!-- Match Players Display -->
+      <div class="bg-slate-900/80 rounded-xl p-3.5 border border-slate-800 space-y-2">
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-slate-400">1. Oyuncu:</span>
+          <span id="edit-p1-name" class="font-bold text-white"></span>
+        </div>
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-slate-400">2. Oyuncu:</span>
+          <span id="edit-p2-name" class="font-bold text-white"></span>
+        </div>
+      </div>
+
+      <!-- Time & Table Inputs -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">🕒 Saat / Tarih:</label>
+          <input type="text" id="edit-match-time" placeholder="Örn: 14:30 veya Yarın 11:00" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-brand-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">🏓 Masa Numarası:</label>
+          <select id="edit-match-table" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-brand-500">
+            <option value="">(Masa Yok)</option>
+            <option value="Masa 1">Masa 1</option>
+            <option value="Masa 2">Masa 2</option>
+            <option value="Masa 3">Masa 3</option>
+            <option value="Masa 4">Masa 4</option>
+            <option value="Masa 5">Masa 5</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Status Selection -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">📌 Maç Durumu:</label>
+        <select id="edit-match-status" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-brand-500">
+          <option value="scheduled">⏳ Beklemede (Planlandı)</option>
+          <option value="in_progress">🟢 Oynanıyor (Canlı)</option>
+          <option value="completed">🏁 Tamamlandı (Skor Girildi)</option>
+          <option value="postponed">🔴 Ertelendi</option>
+          <option value="walkover">🟣 Hükmen Galip (BAY Geçme)</option>
+        </select>
+      </div>
+
+      <!-- Scores and Winner -->
+      <div class="border-t border-slate-800 pt-3 space-y-3">
+        <label class="block text-xs font-semibold text-slate-300">🎯 Skorlar ve Kazanan:</label>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label id="edit-p1-label" class="block text-[11px] text-slate-400 mb-1 truncate"></label>
+            <input type="text" id="edit-p1-score" placeholder="Set skoru (Örn: 3)" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white text-center font-bold">
+          </div>
+          <div>
+            <label id="edit-p2-label" class="block text-[11px] text-slate-400 mb-1 truncate"></label>
+            <input type="text" id="edit-p2-score" placeholder="Set skoru (Örn: 1)" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white text-center font-bold">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] text-slate-400 mb-1">Galip Oyuncu (Üst Tura Çıkacak):</label>
+          <select id="edit-winner-select" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-brand-500">
+            <option value="">(Henüz Belli Değil)</option>
+            <option value="p1" id="edit-winner-p1-opt">1. Oyuncu</option>
+            <option value="p2" id="edit-winner-p2-opt">2. Oyuncu</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Fast Walkover Button (Hükmen Galip / BAY Geçme) -->
+      <div class="bg-purple-950/30 border border-purple-800/40 rounded-xl p-3 text-xs space-y-2">
+        <div class="flex items-center space-x-1 text-purple-300 font-semibold">
+          <span>🚫</span><span>Hükmen Galip (BAY) Kısayolu:</span>
+        </div>
+        <p class="text-[11px] text-purple-200/80">
+          Oyuncunun rahatsızlığı veya gelememesi durumunda rakibini tek tıkla doğrudan üst tura çıkarabilirsiniz.
+        </p>
+        <div class="flex space-x-2 pt-1">
+          <button type="button" onclick="setFastWalkover('p1')" id="btn-wo-p1" class="flex-1 py-1.5 px-2 rounded-lg bg-purple-900/80 hover:bg-purple-800 border border-purple-700 text-[11px] font-semibold text-purple-100 transition truncate">
+            1. Oyuncu Hükmen Üst Tura
+          </button>
+          <button type="button" onclick="setFastWalkover('p2')" id="btn-wo-p2" class="flex-1 py-1.5 px-2 rounded-lg bg-purple-900/80 hover:bg-purple-800 border border-purple-700 text-[11px] font-semibold text-purple-100 transition truncate">
+            2. Oyuncu Hükmen Üst Tura
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-between border-t border-slate-800 pt-3">
+        <button type="button" onclick="clearMatchResult()" class="text-xs text-red-400 hover:text-red-300 font-medium">
+          Sonucu Sıfırla
+        </button>
+        <div class="flex space-x-2">
+          <button type="button" onclick="closeModal('match-edit-modal')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300">
+            Vazgeç
+          </button>
+          <button type="button" onclick="saveMatchEdit()" class="px-5 py-2 rounded-xl text-xs font-bold bg-brand-500 hover:bg-brand-400 text-white">
+            Kaydet
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3. ANNOUNCEMENT EDIT MODAL -->
+  <div id="announcement-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-md rounded-2xl p-6 border border-slate-700 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2 text-amber-400">
+          <span class="text-xl">📢</span>
+          <h3 class="font-bold text-base text-white">Canlı Duyuru Yayınla</h3>
+        </div>
+        <button onclick="closeModal('announcement-modal')" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+      <p class="text-xs text-slate-300">
+        Web sitesinin tepesindeki anons bandında tüm oyunculara görünecek canlı mesaj:
+      </p>
+      <textarea id="announcement-input" rows="3" placeholder="Örn: Yarı final maçları saat 16:30'da Masa 1'de başlayacaktır..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-brand-500"></textarea>
+      <div class="flex justify-between items-center pt-2">
+        <button onclick="clearAnnouncement()" class="text-xs text-red-400 hover:text-red-300">Duyuruyu Kaldır</button>
+        <div class="flex space-x-2">
+          <button onclick="closeModal('announcement-modal')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300">Vazgeç</button>
+          <button onclick="saveAnnouncement()" class="px-5 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950">Yayınla</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. WHATSAPP EXPORT MODAL -->
+  <div id="whatsapp-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-lg rounded-2xl p-6 border border-slate-700 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2 text-emerald-400">
+          <span class="text-xl">📱</span>
+          <h3 class="font-bold text-base text-white">WhatsApp İçin Eşleşme Metni</h3>
+        </div>
+        <button onclick="closeModal('whatsapp-modal')" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+      <p class="text-xs text-slate-300">
+        WhatsApp grubuna göndermek için seçili turun maçlarını ve skorlarını tek tıkla kopyalayın:
+      </p>
+      <div class="flex items-center space-x-3">
+        <label class="text-xs text-slate-300 font-semibold">Tur Seçin:</label>
+        <select id="whatsapp-round-select" onchange="generateWhatsAppText()" class="flex-grow px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white">
+        </select>
+      </div>
+      <textarea id="whatsapp-text-output" rows="9" readonly class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-xs text-slate-200 font-mono leading-relaxed select-all"></textarea>
+      <div class="flex justify-end space-x-2 pt-2">
+        <button onclick="closeModal('whatsapp-modal')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300">Kapat</button>
+        <button onclick="copyWhatsAppText()" class="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center space-x-1.5">
+          <span>📋</span><span>Panoya Kopyala</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. SYNC & SAVE MODAL (GITHUB API OR LOCAL) -->
+  <div id="sync-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-lg rounded-2xl p-6 border border-slate-700 space-y-5 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-2 text-brand-400">
+          <span class="text-xl">🚀</span>
+          <h3 class="font-bold text-base text-white">Değişiklikleri Kaydet & Canlıya Yayınla</h3>
+        </div>
+        <button onclick="closeModal('sync-modal')" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <!-- Option A: GitHub REST API Push -->
+      <div class="bg-slate-900/90 rounded-xl p-4 border border-brand-500/30 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-brand-300 uppercase tracking-wider flex items-center space-x-1.5">
+            <span>🌐</span><span>Seçenek 1: GitHub'a Canlı Yayınla (Önerilen)</span>
+          </span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-brand-900/80 text-brand-300 font-semibold">Otomatik Commit</span>
+        </div>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          GitHub Personal Access Token (PAT) girerseniz, değişiklikleriniz doğrudan repoya pushlanır ve GitHub Pages'teki tüm oyuncuların telefonlarına anında yansır.
+        </p>
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-400 mb-1">GitHub Token (Tarayıcınızda güvende saklanır):</label>
+          <input type="password" id="github-token-input" placeholder="ghp_xxxxxxxxxxxx" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white font-mono">
+        </div>
+        <button onclick="pushToGitHub()" id="btn-github-push" class="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 font-bold text-xs text-white shadow-lg shadow-brand-500/20 transition active:scale-95 flex items-center justify-center space-x-2">
+          <span>🚀</span><span>GitHub'a Canlı Push At</span>
+        </button>
+      </div>
+
+      <!-- Option B: Local / JSON Backup -->
+      <div class="bg-slate-900/60 rounded-xl p-4 border border-slate-800 space-y-3">
+        <span class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-1.5">
+          <span>💾</span><span>Seçenek 2: JSON Yedek Al & Yükle</span>
+        </span>
+        <div class="flex space-x-2">
+          <button onclick="downloadJsonBackup()" class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition">
+            📥 JSON İndir
+          </button>
+          <button onclick="document.getElementById('json-upload-input').click()" class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition">
+            📤 JSON Yükle
+          </button>
+          <input type="file" id="json-upload-input" accept=".json" onchange="uploadJsonBackup(event)" class="hidden">
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button onclick="closeModal('sync-modal')" class="px-5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300">
+          Kapat
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 max-w-sm rounded-xl px-4 py-3 text-xs font-semibold shadow-2xl flex items-center space-x-2 pointer-events-none">
+    <span id="toast-icon">✓</span>
+    <span id="toast-msg">İşlem başarılı</span>
+  </div>
+
+  <script src="web/logic.js"></script>
+  <script>if (typeof TL === 'undefined') { document.write('<script src="logic.js"><\/script>'); }</script>
+
+  <!-- MAIN SCRIPT -->
+  <script>
+    // State storage
+    let tournamentData = null;
+    let currentGender = 'E'; // 'E' or 'K'
+    let currentView = 'bracket'; // 'bracket', 'tables', 'search', 'podium'
+    let currentRoundIndex = 0;
+    let isAdmin = false;
+    let activeEditMatch = null;
+    let computedBracket = null;
+
+    const DATA_FILE_URL = 'data/turnuva_public.json';
+    const GITHUB_REPO = 'Faruk-Ortakoyluoglu/turnuva';
+    const GITHUB_BRANCH = 'main';
+
+    // Helpers
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    function showToast(msg, type = 'success') {
+      const toast = $('#toast');
+      const icon = $('#toast-icon');
+      const text = $('#toast-msg');
+      text.textContent = msg;
+      
+      toast.className = 'fixed bottom-6 right-6 z-50 transition-all duration-300 max-w-sm rounded-xl px-4 py-3 text-xs font-semibold shadow-2xl flex items-center space-x-2 pointer-events-none transform translate-y-0 opacity-100 ';
+      if (type === 'success') {
+        toast.className += 'bg-emerald-900 border border-emerald-500/50 text-emerald-100';
+        icon.textContent = '✅';
+      } else if (type === 'error') {
+        toast.className += 'bg-red-950 border border-red-500/50 text-red-100';
+        icon.textContent = '⚠️';
+      } else {
+        toast.className += 'bg-slate-800 border border-slate-700 text-slate-100';
+        icon.textContent = 'ℹ️';
+      }
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3500);
+    }
+
+    function openModal(id) {
+      $('#' + id).classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      $('#' + id).classList.add('hidden');
+    }
+
+    // Initialize application
+    async function init() {
+      // Check saved admin state
+      if (sessionStorage.getItem('turnuva_admin') === 'true') {
+        isAdmin = true;
+        $('#admin-banner').classList.remove('hidden');
+      }
+
+      // Load token if saved
+      const savedToken = localStorage.getItem('turnuva_github_token');
+      if (savedToken && $('#github-token-input')) {
+        $('#github-token-input').value = savedToken;
+      }
+
+      await fetchTournamentData();
+
+      // Setup 20-second background polling
+      setInterval(() => {
+        fetchTournamentData(false);
+      }, 20000);
+    }
+
+    // Fetch tournament data
+    async function fetchTournamentData(showFeedback = false) {
+      const refreshIcon = $('#refresh-icon');
+      if (refreshIcon && showFeedback) refreshIcon.classList.add('animate-spin');
+
+      try {
+        let res = null;
+        // 1. Try local python server if running
+        try {
+          const pyRes = await fetch('/api/state', { cache: 'no-store' });
+          if (pyRes.ok) {
+            const pyData = await pyRes.json();
+            if (pyData && pyData.state) res = pyData.state;
+          }
+        } catch (_) {}
+
+        // 2. Fallback to public JSON
+        if (!res) {
+          const jsonRes = await fetch(DATA_FILE_URL + '?t=' + Date.now(), { cache: 'no-store' });
+          if (jsonRes.ok) {
+            res = await jsonRes.json();
+          }
+        }
+
+        // 3. Fallback to localStorage
+        if (!res) {
+          const localStr = localStorage.getItem('turnuva_offline_data');
+          if (localStr) res = JSON.parse(localStr);
+        }
+
+        if (res) {
+          tournamentData = res;
+          localStorage.setItem('turnuva_offline_data', JSON.stringify(tournamentData));
+          renderAll();
+          if (showFeedback) showToast('Turnuva verileri canlı güncellendi.', 'success');
+        } else {
+          if (showFeedback) showToast('Veri dosyasına ulaşılamadı.', 'error');
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+        if (showFeedback) showToast('Bağlantı hatası: ' + err.message, 'error');
+      } finally {
+        if (refreshIcon && showFeedback) {
+          setTimeout(() => refreshIcon.classList.remove('animate-spin'), 600);
+        }
+      }
+    }
+
+    // Render All Views
+    function renderAll() {
+      if (!tournamentData) return;
+
+      // Title & Last updated
+      $('#tournament-title').textContent = (currentGender === 'K' && tournamentData.women ? tournamentData.women.title : tournamentData.title) || 'Masa Tenisi Turnuvası';
+      
+      if (tournamentData.last_updated) {
+        const d = new Date(tournamentData.last_updated);
+        $('#last-updated-text').textContent = d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) + ' güncellendi';
+      } else {
+        $('#last-updated-text').textContent = 'Canlı';
+      }
+
+      // Announcement
+      const annBox = $('#announcement-banner');
+      if (tournamentData.announcement && tournamentData.announcement.trim()) {
+        $('#announcement-content').textContent = tournamentData.announcement;
+        annBox.classList.remove('hidden');
+      } else {
+        annBox.classList.add('hidden');
+      }
+
+      // Compute Bracket
+      const viewState = TL.viewOf(tournamentData, currentGender);
+      computedBracket = TL.computeBracket(viewState);
+
+      // Render Active View
+      renderStats();
+      renderBracket();
+      renderTables();
+      renderPodium();
+      if (currentView === 'search') {
+        renderPlayerFinder($('#player-finder-input').value);
+      }
+    }
+
+    // Render Stats
+    function renderStats() {
+      if (!computedBracket || !tournamentData) return;
+      const viewState = TL.viewOf(tournamentData, currentGender);
+      const st = TL.stats(viewState, computedBracket);
+
+      $('#stat-total-matches').textContent = st.total || '-';
+      $('#stat-players-count').textContent = `${st.placed || 0} katılımcı`;
+
+      $('#stat-completed-matches').textContent = st.done || '0';
+      const pct = st.total > 0 ? Math.round((st.done / st.total) * 100) : 0;
+      $('#stat-completed-percent').textContent = `%${pct} tamamlandı`;
+
+      // Live matches
+      const allResults = Object.values(viewState.results || {});
+      const liveCount = allResults.filter(r => r && r.status === 'in_progress').length;
+      $('#stat-live-matches').textContent = liveCount;
+      const tables = tournamentData.tables || ['Masa 1', 'Masa 2'];
+      $('#stat-tables-active').textContent = `${tables.length} masada`;
+
+      const remaining = Math.max(0, (st.total || 0) - (st.done || 0));
+      $('#stat-remaining-matches').textContent = remaining;
+    }
+
+    // Gender Switcher
+    function switchGender(g) {
+      if (currentGender === g) return;
+      currentGender = g;
+      currentRoundIndex = 0;
+
+      const btnE = $('#tab-btn-E');
+      const btnK = $('#tab-btn-K');
+      if (g === 'E') {
+        btnE.className = 'px-3 py-1.5 rounded-lg bg-brand-600 text-white shadow-sm transition active:scale-95 flex items-center space-x-1.5 font-bold';
+        btnK.className = 'px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition active:scale-95 flex items-center space-x-1.5';
+      } else {
+        btnK.className = 'px-3 py-1.5 rounded-lg bg-brand-600 text-white shadow-sm transition active:scale-95 flex items-center space-x-1.5 font-bold';
+        btnE.className = 'px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition active:scale-95 flex items-center space-x-1.5';
+      }
+
+      renderAll();
+    }
+
+    // View Switcher
+    function switchView(v) {
+      currentView = v;
+      const tabs = ['bracket', 'tables', 'search', 'podium'];
+      tabs.forEach(t => {
+        const btn = $('#tab-view-' + t);
+        const container = $('#view-' + t + '-container');
+        if (t === v) {
+          btn.className = 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-brand-600 text-white shadow-sm flex items-center space-x-2 transition active:scale-95 shrink-0';
+          container.classList.remove('hidden');
+        } else {
+          btn.className = 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center space-x-2 transition active:scale-95 shrink-0';
+          container.classList.add('hidden');
+        }
+      });
+    }
+
+    // BRACKET VIEW RENDERING
+    function renderBracket() {
+      if (!computedBracket) return;
+      const R = computedBracket.R;
+      const rounds = computedBracket.rounds;
+
+      // Render round pills
+      const pillBox = $('#round-pills-container');
+      let pillHtml = `<button onclick="setRoundFilter(-1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition active:scale-95 ${currentRoundIndex === -1 ? 'bg-slate-200 text-slate-900 font-bold' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'}">Tüm Turlar</button>`;
+
+      for (let r = 0; r < R; r++) {
+        const rName = TL.roundName(r, R);
+        const count = rounds[r].length;
+        const isSel = currentRoundIndex === r;
+        pillHtml += `
+          <button onclick="setRoundFilter(${r})" class="px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition active:scale-95 ${isSel ? 'bg-brand-600 text-white font-bold shadow-md shadow-brand-600/25' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'}">
+            ${rName} <span class="text-[10px] ml-1 opacity-70">(${count})</span>
+          </button>
+        `;
+      }
+
+      if (computedBracket.third) {
+        const isSel = currentRoundIndex === 99;
+        pillHtml += `
+          <button onclick="setRoundFilter(99)" class="px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition active:scale-95 ${isSel ? 'bg-amber-600 text-white font-bold' : 'bg-slate-900 text-amber-400/80 border border-slate-800'}">
+            🥉 3.lük Maçı
+          </button>
+        `;
+      }
+
+      pillBox.innerHTML = pillHtml;
+
+      // Render Match Cards
+      const grid = $('#bracket-matches-grid');
+      const pmap = TL.participantMap(tournamentData);
+      const query = ($('#global-search-input').value || '').toLocaleLowerCase('tr');
+
+      let matchesToRender = [];
+      if (currentRoundIndex === -1) {
+        rounds.forEach(list => matchesToRender.push(...list));
+        if (computedBracket.third) matchesToRender.push(computedBracket.third);
+      } else if (currentRoundIndex === 99) {
+        if (computedBracket.third) matchesToRender.push(computedBracket.third);
+      } else if (rounds[currentRoundIndex]) {
+        matchesToRender = rounds[currentRoundIndex];
+      }
+
+      // Filter by search query
+      if (query) {
+        matchesToRender = matchesToRender.filter(m => {
+          const n1 = getSideName(m.sides[0], pmap).toLocaleLowerCase('tr');
+          const n2 = getSideName(m.sides[1], pmap).toLocaleLowerCase('tr');
+          return n1.includes(query) || n2.includes(query) || m.id.toLocaleLowerCase().includes(query);
+        });
+      }
+
+      if (matchesToRender.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-slate-500 text-xs">
+            Arama kriterine uygun maç bulunamadı.
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = matchesToRender.map(m => renderMatchCard(m, pmap, R)).join('');
+    }
+
+    function setRoundFilter(r) {
+      currentRoundIndex = r;
+      renderBracket();
+    }
+
+    function handleSearch(val) {
+      if (currentView === 'bracket') renderBracket();
+      else if (currentView === 'search') renderPlayerFinder(val);
+    }
+
+    function getSideName(side, pmap) {
+      if (!side) return '—';
+      if (side.type === 'bye') return 'BAY (Boş)';
+      if (side.type === 'pending') return '(Bekleniyor)';
+      if (side.type === 'player') {
+        const p = pmap.get(side.id);
+        return p ? p.name : 'Bilinmeyen Oyuncu';
+      }
+      return '—';
+    }
+
+    function renderMatchCard(m, pmap, R) {
+      const res = m.result || {};
+      const status = res.status || (m.winner && m.winner.type === 'player' ? 'completed' : (res.scores ? 'in_progress' : 'scheduled'));
+      const time = res.time || '';
+      const table = res.table || '';
+      const roundTitle = m.isThird ? '3.lük Maçı' : TL.roundName(m.r, R);
+
+      const s1 = m.sides[0];
+      const s2 = m.sides[1];
+      const p1Name = getSideName(s1, pmap);
+      const p2Name = getSideName(s2, pmap);
+
+      const scores = res.scores || {};
+      const s1Score = s1.id && scores[s1.id] != null ? scores[s1.id] : '';
+      const s2Score = s2.id && scores[s2.id] != null ? scores[s2.id] : '';
+
+      const isP1Winner = m.winner && s1.id && m.winner.id === s1.id;
+      const isP2Winner = m.winner && s2.id && m.winner.id === s2.id;
+      const isWalkover = status === 'walkover';
+
+      // Status Badge
+      let statusBadge = '';
+      if (status === 'in_progress') {
+        statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 pulse-dot"></span>Canlı</span>';
+      } else if (status === 'completed') {
+        statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">Bitti</span>';
+      } else if (status === 'walkover') {
+        statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-900/60 text-purple-300 border border-purple-600/50">Hükmen / BAY</span>';
+      } else if (status === 'postponed') {
+        statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-950 text-red-400 border border-red-700/60">Ertelendi</span>';
+      } else {
+        statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-900 text-slate-400">Bekliyor</span>';
+      }
+
+      return `
+        <div class="glass-card glass-card-hover rounded-2xl p-4 border border-slate-800 flex flex-col justify-between space-y-3.5">
+          <!-- Top info bar -->
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center space-x-1.5">
+              <span class="font-mono text-[10px] text-slate-500">#${m.id}</span>
+              <span class="text-slate-600">•</span>
+              <span class="text-[11px] font-semibold text-slate-400">${roundTitle}</span>
+            </div>
+            ${statusBadge}
+          </div>
+
+          <!-- Players and Scores -->
+          <div class="space-y-1.5">
+            <!-- Player 1 Row -->
+            <div class="flex items-center justify-between p-2 rounded-xl transition ${isP1Winner ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 font-bold' : (s1.type === 'bye' ? 'text-slate-500 italic bg-slate-900/40' : 'text-slate-200 bg-slate-900/70')}">
+              <div class="flex items-center space-x-2 truncate">
+                <span class="w-5 text-center text-[10px] font-mono text-slate-500">${m.r === 0 ? m.m * 2 + 1 : ''}</span>
+                <span class="truncate text-xs">${p1Name}</span>
+                ${isP1Winner ? '<span class="text-[10px] text-emerald-400">✓</span>' : ''}
+              </div>
+              <div class="text-xs font-mono font-bold shrink-0 ml-2">
+                ${isWalkover && isP1Winner ? '<span class="text-[10px] text-purple-300 px-1 rounded bg-purple-950">W.O.</span>' : s1Score}
+              </div>
+            </div>
+
+            <!-- Player 2 Row -->
+            <div class="flex items-center justify-between p-2 rounded-xl transition ${isP2Winner ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 font-bold' : (s2.type === 'bye' ? 'text-slate-500 italic bg-slate-900/40' : 'text-slate-200 bg-slate-900/70')}">
+              <div class="flex items-center space-x-2 truncate">
+                <span class="w-5 text-center text-[10px] font-mono text-slate-500">${m.r === 0 ? m.m * 2 + 2 : ''}</span>
+                <span class="truncate text-xs">${p2Name}</span>
+                ${isP2Winner ? '<span class="text-[10px] text-emerald-400">✓</span>' : ''}
+              </div>
+              <div class="text-xs font-mono font-bold shrink-0 ml-2">
+                ${isWalkover && isP2Winner ? '<span class="text-[10px] text-purple-300 px-1 rounded bg-purple-950">W.O.</span>' : s2Score}
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom meta & Admin Action -->
+          <div class="flex items-center justify-between pt-1 border-t border-slate-800/60 text-[11px] text-slate-400">
+            <div class="flex items-center space-x-2">
+              ${table ? `<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-medium">🏓 ${table}</span>` : '<span class="text-slate-600">Masa atanmadı</span>'}
+              ${time ? `<span class="font-mono text-slate-300">🕒 ${time}</span>` : ''}
+            </div>
+
+            ${isAdmin ? `
+              <button onclick="openMatchEditModal('${m.id}')" class="px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[10px] font-bold transition active:scale-95 flex items-center space-x-1">
+                <span>⚡</span><span>Düzenle</span>
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    // TABLES VIEW (CANLI SALON)
+    function renderTables() {
+      if (!computedBracket || !tournamentData) return;
+      const container = $('#tables-grid');
+      const tables = tournamentData.tables || ['Masa 1', 'Masa 2', 'Masa 3', 'Masa 4'];
+      const pmap = TL.participantMap(tournamentData);
+      const allMatches = computedBracket.rounds.flat().concat(computedBracket.third ? [computedBracket.third] : []);
+
+      container.innerHTML = tables.map(tableName => {
+        // Active match on this table
+        const liveMatch = allMatches.find(m => {
+          const res = m.result;
+          return res && res.table === tableName && res.status === 'in_progress';
+        });
+
+        // Next queued matches
+        const nextMatches = allMatches.filter(m => {
+          const res = m.result;
+          return res && res.table === tableName && res.status === 'scheduled';
+        });
+
+        return `
+          <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center space-x-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold">
+                    🏓
+                  </div>
+                  <h3 class="font-extrabold text-white text-base">${tableName}</h3>
+                </div>
+                ${liveMatch ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 pulse-dot">Canlı Maç</span>' : '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-800 text-slate-400">Şu An Boş</span>'}
+              </div>
+
+              <!-- Live Match Display -->
+              ${liveMatch ? `
+                <div class="mt-4 p-4 rounded-xl bg-gradient-to-tr from-emerald-950/60 to-slate-900 border border-emerald-500/30 space-y-2.5">
+                  <div class="flex items-center justify-between text-[11px] text-emerald-400 font-semibold uppercase tracking-wider">
+                    <span>${liveMatch.isThird ? '3.lük Maçı' : TL.roundName(liveMatch.r, computedBracket.R)} (#${liveMatch.id})</span>
+                    <span>Oynanıyor</span>
+                  </div>
+                  <div class="flex items-center justify-between text-sm font-extrabold text-white">
+                    <span class="truncate max-w-[120px]">${getSideName(liveMatch.sides[0], pmap)}</span>
+                    <span class="font-mono text-emerald-400 text-lg px-2">${liveMatch.result && liveMatch.result.scores ? `${liveMatch.result.scores[liveMatch.sides[0].id] || 0} - ${liveMatch.result.scores[liveMatch.sides[1].id] || 0}` : '0 - 0'}</span>
+                    <span class="truncate max-w-[120px] text-right">${getSideName(liveMatch.sides[1], pmap)}</span>
+                  </div>
+                </div>
+              ` : `
+                <div class="mt-4 p-5 rounded-xl bg-slate-900/40 border border-dashed border-slate-800 text-center text-xs text-slate-500">
+                  Şu an bu masada canlı oynanan maç yok.
+                </div>
+              `}
+            </div>
+
+            <!-- Next Queue on Table -->
+            <div class="pt-3 border-t border-slate-800/60">
+              <p class="text-xs font-semibold text-slate-400 mb-2">Bu Masada Sırada Bekleyenler:</p>
+              ${nextMatches.length > 0 ? `
+                <div class="space-y-1.5">
+                  ${nextMatches.slice(0, 3).map(m => `
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/80 text-xs">
+                      <span class="text-slate-300 font-medium truncate max-w-[160px]">${getSideName(m.sides[0], pmap)} vs ${getSideName(m.sides[1], pmap)}</span>
+                      <span class="text-slate-400 font-mono text-[11px] shrink-0">${m.result && m.result.time ? m.result.time : 'Sırada'}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : `
+                <p class="text-[11px] text-slate-500 italic">Sırada bekleyen maç bulunmuyor.</p>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // SEARCH & PLAYER FINDER
+    function renderPlayerFinder(query = '') {
+      const container = $('#player-finder-results');
+      query = (query || '').trim().toLocaleLowerCase('tr');
+      if (!query || query.length < 2) {
+        container.innerHTML = '<p class="text-center text-xs text-slate-500 py-4">Aramak için en az 2 harf yazın.</p>';
+        return;
+      }
+
+      const pmap = TL.participantMap(tournamentData);
+      const matches = computedBracket.rounds.flat().concat(computedBracket.third ? [computedBracket.third] : []);
+      const matchedPlayers = tournamentData.participants.filter(p => p.gender === currentGender && p.name.toLocaleLowerCase('tr').includes(query));
+
+      if (matchedPlayers.length === 0) {
+        container.innerHTML = '<p class="text-center text-xs text-slate-500 py-4">Bu isimle eşleşen katılımcı bulunamadı.</p>';
+        return;
+      }
+
+      container.innerHTML = matchedPlayers.map(p => {
+        const playerMatches = matches.filter(m => m.sides.some(s => s.id === p.id));
+        const lastMatch = playerMatches[playerMatches.length - 1];
+        const isEliminated = lastMatch && lastMatch.winner && lastMatch.winner.id && lastMatch.winner.id !== p.id;
+        const isChamp = computedBracket.podium && computedBracket.podium.first === p.id;
+
+        return `
+          <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-slate-800 text-slate-200 flex items-center justify-center font-bold text-sm">
+                  ${p.name.charAt(0)}
+                </div>
+                <div>
+                  <h3 class="font-bold text-white text-base">${p.name}</h3>
+                  <span class="text-xs text-slate-400">${currentGender === 'E' ? 'Erkekler Tablosu' : 'Kadınlar Tablosu'}</span>
+                </div>
+              </div>
+              <div>
+                ${isChamp ? '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">🏆 Şampiyon</span>' : (isEliminated ? '<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-red-950/60 text-red-400 border border-red-800/50">Elendi</span>' : '<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-800/50">Turnuvada Devam Ediyor</span>')}
+              </div>
+            </div>
+
+            <!-- Player Match History -->
+            <div>
+              <p class="text-xs font-semibold text-slate-400 mb-2">Maç Geçmişi & Sıradaki Eşleşme:</p>
+              <div class="space-y-2">
+                ${playerMatches.map(m => {
+                  const oppSide = m.sides.find(s => s.id !== p.id);
+                  const oppName = getSideName(oppSide, pmap);
+                  const won = m.winner && m.winner.id === p.id;
+                  const lost = m.winner && m.winner.id && m.winner.id !== p.id;
+                  const res = m.result || {};
+
+                  return `
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/80 border border-slate-800/60 text-xs">
+                      <div>
+                        <span class="font-semibold text-slate-300">${m.isThird ? '3.lük Maçı' : TL.roundName(m.r, computedBracket.R)}:</span>
+                        <span class="text-slate-400 ml-1">vs ${oppName}</span>
+                        ${res.table ? `<span class="ml-2 text-slate-500">(${res.table})</span>` : ''}
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        ${res.time ? `<span class="font-mono text-slate-400 text-[11px]">${res.time}</span>` : ''}
+                        ${won ? '<span class="font-bold text-emerald-400">Kazandı ✓</span>' : (lost ? '<span class="font-semibold text-red-400">Elendi ✕</span>' : '<span class="font-medium text-amber-400">Bekliyor</span>')}
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // PODIUM VIEW
+    function renderPodium() {
+      if (!computedBracket) return;
+      const pmap = TL.participantMap(tournamentData);
+      const podium = computedBracket.podium;
+      const grid = $('#podium-cards-grid');
+
+      const getName = (id) => id ? (pmap.get(id) ? pmap.get(id).name : '—') : 'Henüz Belirlenmedi';
+
+      grid.innerHTML = `
+        <!-- 2nd Place -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 text-center space-y-3 order-2 md:order-1">
+          <div class="text-3xl">🥈</div>
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300">2. İkinci</span>
+          <h3 class="text-base font-bold text-white">${getName(podium.second)}</h3>
+        </div>
+
+        <!-- 1st Place (Champion) -->
+        <div class="glass-card rounded-2xl p-6 border-2 border-amber-500/40 bg-gradient-to-b from-amber-950/20 to-slate-900 text-center space-y-3 order-1 md:order-2 shadow-xl shadow-amber-500/10 -mt-2">
+          <div class="text-5xl">🏆</div>
+          <span class="inline-block px-3.5 py-1 rounded-full text-xs font-extrabold bg-amber-500 text-slate-950 uppercase tracking-wider">Şampiyon (1.)</span>
+          <h3 class="text-lg font-extrabold text-amber-200">${getName(podium.first)}</h3>
+        </div>
+
+        <!-- 3rd Place -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 text-center space-y-3 order-3">
+          <div class="text-3xl">🥉</div>
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-950 text-amber-400 border border-amber-800/40">3. Üçüncü</span>
+          <h3 class="text-base font-bold text-white">${getName(podium.third)}</h3>
+        </div>
+      `;
+
+      // 3rd place match summary if available
+      const thirdBox = $('#third-place-match-card');
+      if (computedBracket.third) {
+        thirdBox.innerHTML = `
+          <div class="max-w-md mx-auto">
+            <h4 class="text-xs font-bold text-slate-400 uppercase text-center mb-2">3.lük Maçı Eşleşmesi</h4>
+            ${renderMatchCard(computedBracket.third, pmap, computedBracket.R)}
+          </div>
+        `;
+      } else {
+        thirdBox.innerHTML = '';
+      }
+    }
+
+    // ========================================================
+    // ADMIN FUNCTIONS (MATCH EDITING, WALKOVERS, ANNOUNCEMENTS)
+    // ========================================================
+
+    function promptAdminLogin() {
+      if (isAdmin) {
+        showToast('Zaten yönetici modundasınız.', 'info');
+        return;
+      }
+      openModal('admin-login-modal');
+      setTimeout(() => $('#admin-pin-input').focus(), 150);
+    }
+
+    function submitAdminLogin() {
+      const pin = $('#admin-pin-input').value.trim();
+      const savedPin = localStorage.getItem('turnuva_custom_pin') || '1923';
+
+      if (pin === savedPin) {
+        isAdmin = true;
+        sessionStorage.setItem('turnuva_admin', 'true');
+        $('#admin-banner').classList.remove('hidden');
+        closeModal('admin-login-modal');
+        showToast('Yönetici moduna başarıyla girildi! 👑', 'success');
+        renderAll();
+      } else {
+        showToast('Hatalı PIN kodu!', 'error');
+      }
+    }
+
+    function exitAdminMode() {
+      isAdmin = false;
+      sessionStorage.removeItem('turnuva_admin');
+      $('#admin-banner').classList.add('hidden');
+      showToast('Yönetici modundan çıkıldı.', 'info');
+      renderAll();
+    }
+
+    // Open Match Edit Modal
+    function openMatchEditModal(mid) {
+      if (!computedBracket || !tournamentData) return;
+      const allMatches = computedBracket.rounds.flat().concat(computedBracket.third ? [computedBracket.third] : []);
+      const match = allMatches.find(m => m.id === mid);
+      if (!match) return;
+
+      activeEditMatch = match;
+      const pmap = TL.participantMap(tournamentData);
+      const res = match.result || {};
+
+      $('#edit-modal-round-tag').textContent = match.isThird ? '3.lük Maçı' : TL.roundName(match.r, computedBracket.R);
+      $('#edit-modal-title').textContent = `Maç #${match.id} Düzenleme`;
+
+      const p1 = match.sides[0];
+      const p2 = match.sides[1];
+      const n1 = getSideName(p1, pmap);
+      const n2 = getSideName(p2, pmap);
+
+      $('#edit-p1-name').textContent = n1;
+      $('#edit-p2-name').textContent = n2;
+      $('#edit-p1-label').textContent = n1;
+      $('#edit-p2-label').textContent = n2;
+
+      $('#edit-match-time').value = res.time || '';
+      $('#edit-match-table').value = res.table || '';
+      $('#edit-match-status').value = res.status || 'scheduled';
+
+      const scores = res.scores || {};
+      $('#edit-p1-score').value = (p1.id && scores[p1.id] != null) ? scores[p1.id] : '';
+      $('#edit-p2-score').value = (p2.id && scores[p2.id] != null) ? scores[p2.id] : '';
+
+      // Winner select
+      $('#edit-winner-p1-opt').textContent = n1;
+      $('#edit-winner-p2-opt').textContent = n2;
+      if (match.winner && match.winner.id === p1.id) $('#edit-winner-select').value = 'p1';
+      else if (match.winner && match.winner.id === p2.id) $('#edit-winner-select').value = 'p2';
+      else $('#edit-winner-select').value = '';
+
+      // Walkover fast buttons
+      $('#btn-wo-p1').textContent = `🚫 ${n1} Hükmen Üst Tura`;
+      $('#btn-wo-p2').textContent = `🚫 ${n2} Hükmen Üst Tura`;
+
+      openModal('match-edit-modal');
+    }
+
+    // Fast Walkover (BAY Geçirme / Gelememe Durumu)
+    function setFastWalkover(winnerSlot) {
+      if (!activeEditMatch) return;
+      const p1 = activeEditMatch.sides[0];
+      const p2 = activeEditMatch.sides[1];
+
+      $('#edit-match-status').value = 'walkover';
+      if (winnerSlot === 'p1') {
+        $('#edit-p1-score').value = 'Hükmen';
+        $('#edit-p2-score').value = 'W.O.';
+        $('#edit-winner-select').value = 'p1';
+      } else {
+        $('#edit-p1-score').value = 'W.O.';
+        $('#edit-p2-score').value = 'Hükmen';
+        $('#edit-winner-select').value = 'p2';
+      }
+      showToast('Hükmen galip işaretlendi. "Kaydet" butonuna basarak onaylayın.', 'info');
+    }
+
+    // Save Match Edit
+    function saveMatchEdit() {
+      if (!activeEditMatch || !tournamentData) return;
+      const mid = activeEditMatch.id;
+      const viewState = TL.viewOf(tournamentData, currentGender);
+      if (!viewState.results) viewState.results = {};
+
+      const p1 = activeEditMatch.sides[0];
+      const p2 = activeEditMatch.sides[1];
+      const status = $('#edit-match-status').value;
+      const time = $('#edit-match-time').value.trim();
+      const table = $('#edit-match-table').value;
+      const s1Val = $('#edit-p1-score').value.trim();
+      const s2Val = $('#edit-p2-score').value.trim();
+      const winnerSel = $('#edit-winner-select').value;
+
+      const res = Object.assign({}, viewState.results[mid] || {});
+      res.players = [p1.id, p2.id].filter(Boolean);
+      res.time = time;
+      res.table = table;
+      res.status = status;
+
+      // Scores
+      res.scores = {};
+      if (p1.id && s1Val !== '') res.scores[p1.id] = s1Val;
+      if (p2.id && s2Val !== '') res.scores[p2.id] = s2Val;
+
+      // Winner
+      if (winnerSel === 'p1' && p1.id) res.winner = p1.id;
+      else if (winnerSel === 'p2' && p2.id) res.winner = p2.id;
+      else delete res.winner;
+
+      viewState.results[mid] = res;
+      tournamentData.last_updated = new Date().toISOString();
+
+      // Normalize logic
+      TL.normalize(viewState);
+      closeModal('match-edit-modal');
+      saveOfflineAndRefresh('Maç güncellendi ✓');
+    }
+
+    function clearMatchResult() {
+      if (!activeEditMatch || !tournamentData) return;
+      const mid = activeEditMatch.id;
+      const viewState = TL.viewOf(tournamentData, currentGender);
+      if (viewState.results && viewState.results[mid]) {
+        delete viewState.results[mid];
+        TL.normalize(viewState);
+        tournamentData.last_updated = new Date().toISOString();
+        closeModal('match-edit-modal');
+        saveOfflineAndRefresh('Maç sonucu sıfırlandı.');
+      }
+    }
+
+    // Announcements
+    function openAnnouncementModal() {
+      $('#announcement-input').value = tournamentData && tournamentData.announcement ? tournamentData.announcement : '';
+      openModal('announcement-modal');
+    }
+
+    function saveAnnouncement() {
+      if (!tournamentData) return;
+      const text = $('#announcement-input').value.trim();
+      tournamentData.announcement = text;
+      tournamentData.last_updated = new Date().toISOString();
+      closeModal('announcement-modal');
+      saveOfflineAndRefresh('Duyuru güncellendi 📢');
+    }
+
+    function clearAnnouncement() {
+      if (!tournamentData) return;
+      tournamentData.announcement = '';
+      tournamentData.last_updated = new Date().toISOString();
+      closeModal('announcement-modal');
+      saveOfflineAndRefresh('Duyuru kaldırıldı.');
+    }
+
+    // WhatsApp Text Generation
+    function openWhatsAppModal() {
+      if (!computedBracket) return;
+      const sel = $('#whatsapp-round-select');
+      sel.innerHTML = computedBracket.rounds.map((_, r) => `
+        <option value="${r}">${TL.roundName(r, computedBracket.R)}</option>
+      `).join('') + (computedBracket.third ? '<option value="99">3.lük Maçı</option>' : '');
+
+      generateWhatsAppText();
+      openModal('whatsapp-modal');
+    }
+
+    function generateWhatsAppText() {
+      if (!computedBracket || !tournamentData) return;
+      const rVal = parseInt($('#whatsapp-round-select').value);
+      const pmap = TL.participantMap(tournamentData);
+      const isThird = rVal === 99;
+      const matches = isThird ? (computedBracket.third ? [computedBracket.third] : []) : computedBracket.rounds[rVal];
+      const rName = isThird ? '3.lük Maçı' : TL.roundName(rVal, computedBracket.R);
+
+      let text = `🏓 *MASA TENİSİ TURNUVASI — ${rName.toLocaleUpperCase('tr')}*\n\n`;
+      matches.forEach((m, idx) => {
+        const n1 = getSideName(m.sides[0], pmap);
+        const n2 = getSideName(m.sides[1], pmap);
+        const res = m.result || {};
+        const sc = res.scores ? `${res.scores[m.sides[0].id] || 0}-${res.scores[m.sides[1].id] || 0}` : '';
+        const meta = [res.table, res.time].filter(Boolean).join(' • ');
+
+        text += `${idx + 1}) *${n1}* vs *${n2}*`;
+        if (sc) text += ` [${sc}]`;
+        if (meta) text += ` (${meta})`;
+        if (m.winner) text += ` ✅`;
+        text += '\n';
+      });
+
+      text += `\n🌐 *Canlı Fikstür & Masalar:* https://${GITHUB_REPO.split('/')[0].toLowerCase()}.github.io/${GITHUB_REPO.split('/')[1]}`;
+      $('#whatsapp-text-output').value = text;
+    }
+
+    async function copyWhatsAppText() {
+      const ta = $('#whatsapp-text-output');
+      try {
+        await navigator.clipboard.writeText(ta.value);
+        showToast('WhatsApp metni panoya kopyalandı! 📋', 'success');
+      } catch (err) {
+        ta.select();
+        document.execCommand('copy');
+        showToast('Kopyalandı!', 'success');
+      }
+    }
+
+    // Save offline and refresh
+    function saveOfflineAndRefresh(toastMsg) {
+      localStorage.setItem('turnuva_offline_data', JSON.stringify(tournamentData));
+      renderAll();
+      showToast(toastMsg, 'success');
+    }
+
+    // Modal open for Sync
+    function openSyncModal() {
+      openModal('sync-modal');
+    }
+
+    // Sanitize tournament data for public GitHub (Strip any sensitive fields)
+    function sanitizeForPublic(data) {
+      const copy = JSON.parse(JSON.stringify(data));
+      if (Array.isArray(copy.participants)) {
+        copy.participants = copy.participants.map(p => ({
+          id: p.id,
+          name: p.name,
+          gender: p.gender
+        }));
+      }
+      return copy;
+    }
+
+    // Direct GitHub Commit via REST API
+    async function pushToGitHub() {
+      const tokenInput = $('#github-token-input');
+      const token = tokenInput ? tokenInput.value.trim() : '';
+      if (!token) {
+        showToast('Lütfen geçerli bir GitHub Token girin!', 'error');
+        return;
+      }
+
+      localStorage.setItem('turnuva_github_token', token);
+      const btn = $('#btn-github-push');
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span><span>GitHub\'a Push Atılıyor...</span>';
+
+      try {
+        const publicData = sanitizeForPublic(tournamentData);
+        publicData.last_updated = new Date().toISOString();
+        const jsonContent = JSON.stringify(publicData, null, 2);
+
+        const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${DATA_FILE_URL}`;
+
+        // Get current SHA
+        let sha = null;
+        try {
+          const getRes = await fetch(apiUrl, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/vnd.github.v3+json',
+            }
+          });
+          if (getRes.ok) {
+            const fileInfo = await getRes.json();
+            sha = fileInfo.sha;
+          }
+        } catch (_) {}
+
+        // Commit and PUT
+        const utf8Bytes = new TextEncoder().encode(jsonContent);
+        let binary = '';
+        for (let i = 0; i < utf8Bytes.length; i++) binary += String.fromCharCode(utf8Bytes[i]);
+        const base64Content = btoa(binary);
+
+        const putRes = await fetch(apiUrl, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: `🏓 Turnuva Güncellemesi: ${new Date().toLocaleTimeString('tr-TR')}`,
+            content: base64Content,
+            branch: GITHUB_BRANCH,
+            sha: sha || undefined
+          })
+        });
+
+        if (!putRes.ok) {
+          const errData = await putRes.json();
+          throw new Error(errData.message || 'GitHub API hatası');
+        }
+
+        closeModal('sync-modal');
+        showToast('GitHub\'a canlı yayınlandı! Sitedeki herkes birkaç saniye içinde görecek 🚀', 'success');
+      } catch (err) {
+        console.error('GitHub Push Hatası:', err);
+        showToast('Yayınlanamadı: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🚀</span><span>GitHub\'a Canlı Push At</span>';
+      }
+    }
+
+    // JSON Export & Import
+    function downloadJsonBackup() {
+      if (!tournamentData) return;
+      const blob = new Blob([JSON.stringify(tournamentData, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `turnuva_yedek_${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      showToast('Yedek JSON indirildi ✓', 'success');
+    }
+
+    function uploadJsonBackup(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const data = JSON.parse(evt.target.result);
+          if (data && data.participants && data.slots) {
+            tournamentData = data;
+            saveOfflineAndRefresh('Yedek dosya başarıyla yüklendi ✓');
+            closeModal('sync-modal');
+          } else {
+            showToast('Geçersiz turnuva dosyası!', 'error');
+          }
+        } catch (err) {
+          showToast('Dosya okunamadı: ' + err.message, 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Launch
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 # Turnuva verisi: katılımcıların telefon numaraları içerir, depoya girmez
 # (kayit.json, yedekleri ve uygulamadan indirilen JSON yedekleri dahil tüm .json dosyaları)
 *.json
+!data/turnuva_public.json
 kayit.json.tmp
 yedekler/
 *.csv

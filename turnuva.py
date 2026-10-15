@@ -352,10 +352,11 @@ def kaydet(durum, temel_rev=None, zorla=False):
 
 def kayit_yukle():
     """(durum | None, uyarı | None) döndürür. Bozuk dosyada en yeni yedeğe döner."""
-    if not KAYIT.exists():
+    hedef_dosya = KAYIT if KAYIT.exists() else (BASE / "data" / "turnuva_public.json")
+    if not hedef_dosya.exists():
         return None, None
     try:
-        with open(KAYIT, encoding="utf-8") as f:
+        with open(hedef_dosya, encoding="utf-8") as f:
             durum = json.load(f)
         dogrula(durum)
         return durum, None
@@ -504,8 +505,12 @@ class Isleyici(BaseHTTPRequestHandler):
         if yol in ("", "/"):
             yol = "/index.html"
         try:
-            hedef = (WEB / unquote(yol).lstrip("/")).resolve()
-            bulundu = WEB.resolve() in hedef.parents and hedef.is_file()
+            rel = unquote(yol).lstrip("/")
+            hedef = (WEB / rel).resolve()
+            bulundu = (WEB.resolve() in hedef.parents or hedef == WEB) and hedef.is_file()
+            if not bulundu:
+                hedef = (BASE / rel).resolve()
+                bulundu = (BASE.resolve() in hedef.parents or hedef == BASE) and hedef.is_file()
         except (ValueError, OSError):
             bulundu = False
         if not bulundu:

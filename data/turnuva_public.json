@@ -1,0 +1,706 @@
+{
+  "version": 1,
+  "title": "Masa Tenisi Turnuvası — Erkekler",
+  "participants": [
+    {
+      "id": "p1",
+      "name": "Faruk Başkan",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p2",
+      "name": "Serdar Arif",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p3",
+      "name": "Arda Öztürk",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p4",
+      "name": "Caner Kaya",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p5",
+      "name": "Burak Öz",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p6",
+      "name": "Emre Yıldız",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p7",
+      "name": "Ahmet Yılmaz",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p8",
+      "name": "Mehmet Demir",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p9",
+      "name": "Mustafa Çelik",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p10",
+      "name": "Ali Şahin",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p11",
+      "name": "Hüseyin Koç",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p12",
+      "name": "Hasan Aydın",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p13",
+      "name": "İbrahim Aslan",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p14",
+      "name": "İsmail Polat",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p15",
+      "name": "Osman Kurt",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p16",
+      "name": "Murat Korkmaz",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p17",
+      "name": "Ömer Çetin",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p18",
+      "name": "Ramazan Doğan",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p19",
+      "name": "Halil Yavuz",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p20",
+      "name": "Yusuf Aksoy",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p21",
+      "name": "Enes Arslan",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p22",
+      "name": "Furkan Tekin",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p23",
+      "name": "Oğuzhan Güler",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p24",
+      "name": "Batuhan Avcı",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p25",
+      "name": "Kadir Kılıç",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p26",
+      "name": "Taha Keskin",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p27",
+      "name": "Umut Yalçın",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p28",
+      "name": "Alperen Çakır",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p29",
+      "name": "Mert Bulut",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p30",
+      "name": "Deniz Eren",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p31",
+      "name": "Tolga Duman",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p32",
+      "name": "Gökhan Acar",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p33",
+      "name": "Barış Taş",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p34",
+      "name": "Okan Şimşek",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p35",
+      "name": "Cemil Ünal",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p36",
+      "name": "Kerem Özdemir",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p37",
+      "name": "Sefa Karaca",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p38",
+      "name": "Onur Coşkun",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p39",
+      "name": "Semih Bozkurt",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p40",
+      "name": "Yasin Tunç",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p41",
+      "name": "Eren Köse",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p42",
+      "name": "Volkan Kaplan",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p43",
+      "name": "Kaan Aktaş",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p44",
+      "name": "Berk Gezer",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p45",
+      "name": "Efe Durmaz",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p46",
+      "name": "Salih Sarı",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p47",
+      "name": "Cihan Bilgin",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p48",
+      "name": "Sedat Çiftçi",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p49",
+      "name": "Selim Güneş",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p50",
+      "name": "Tarık Özkan",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p51",
+      "name": "Bora Yaman",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p52",
+      "name": "Ercan Vural",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p53",
+      "name": "Recep Şen",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p54",
+      "name": "Metin Sönmez",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p55",
+      "name": "Kenan Sezer",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p56",
+      "name": "Zafer Ergün",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p57",
+      "name": "İlker Dinç",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p58",
+      "name": "Tayfun Özçelik",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p59",
+      "name": "Cüneyt Uçar",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p60",
+      "name": "Sinan Erol",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p61",
+      "name": "Levent Bayrak",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p62",
+      "name": "Koray Erdem",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p63",
+      "name": "Bülent Karataş",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p64",
+      "name": "Hakan Candan",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p65",
+      "name": "Ozan Çelebi",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p66",
+      "name": "Serhat Alkan",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p67",
+      "name": "Uğur Barış",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p68",
+      "name": "Erhan Yiğit",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p69",
+      "name": "Mesut Şentürk",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p70",
+      "name": "Atilla Başar",
+      "gender": "E",
+      "check": false
+    },
+    {
+      "id": "p71",
+      "name": "Zeynep Kaya",
+      "gender": "K",
+      "check": false
+    },
+    {
+      "id": "p72",
+      "name": "Elif Demir",
+      "gender": "K",
+      "check": false
+    },
+    {
+      "id": "p73",
+      "name": "Merve Yılmaz",
+      "gender": "K",
+      "check": false
+    },
+    {
+      "id": "p74",
+      "name": "Ayşe Çelik",
+      "gender": "K",
+      "check": false
+    },
+    {
+      "id": "p75",
+      "name": "Fatma Şahin",
+      "gender": "K",
+      "check": false
+    },
+    {
+      "id": "p76",
+      "name": "Sena Koç",
+      "gender": "K",
+      "check": false
+    },
+    {
+      "id": "p77",
+      "name": "Büşra Aydın",
+      "gender": "K",
+      "check": false
+    },
+    {
+      "id": "p78",
+      "name": "Ece Aslan",
+      "gender": "K",
+      "check": false
+    },
+    {
+      "id": "p79",
+      "name": "Gamze Polat",
+      "gender": "K",
+      "check": false
+    },
+    {
+      "id": "p80",
+      "name": "Gizem Kurt",
+      "gender": "K",
+      "check": false
+    },
+    {
+      "id": "p81",
+      "name": "İrem Korkmaz",
+      "gender": "K",
+      "check": false
+    },
+    {
+      "id": "p82",
+      "name": "Selin Çetin",
+      "gender": "K",
+      "check": false
+    }
+  ],
+  "slots": [
+    null,
+    "p13",
+    null,
+    "p27",
+    null,
+    "p63",
+    null,
+    "p50",
+    null,
+    "p26",
+    "p29",
+    null,
+    null,
+    "p33",
+    null,
+    "p41",
+    null,
+    "p65",
+    "p5",
+    "p59",
+    "p23",
+    null,
+    null,
+    "p67",
+    "p43",
+    null,
+    null,
+    "p55",
+    null,
+    "p66",
+    null,
+    "p61",
+    "p53",
+    null,
+    "p12",
+    null,
+    "p20",
+    null,
+    null,
+    "p32",
+    "p47",
+    "p16",
+    null,
+    "p14",
+    "p64",
+    null,
+    null,
+    "p52",
+    "p54",
+    null,
+    null,
+    "p38",
+    null,
+    "p35",
+    null,
+    "p70",
+    null,
+    "p46",
+    "p30",
+    null,
+    "p19",
+    null,
+    "p49",
+    "p24",
+    null,
+    "p57",
+    "p11",
+    null,
+    "p44",
+    null,
+    "p2",
+    null,
+    "p18",
+    null,
+    "p48",
+    null,
+    "p7",
+    null,
+    null,
+    "p42",
+    "p40",
+    null,
+    null,
+    "p21",
+    "p1",
+    "p51",
+    null,
+    "p28",
+    "p36",
+    null,
+    "p62",
+    null,
+    "p22",
+    null,
+    null,
+    "p68",
+    "p45",
+    null,
+    null,
+    "p4",
+    null,
+    "p6",
+    "p3",
+    null,
+    "p15",
+    null,
+    "p37",
+    "p39",
+    null,
+    "p8",
+    null,
+    "p10",
+    null,
+    "p69",
+    "p58",
+    null,
+    null,
+    "p60",
+    "p56",
+    null,
+    "p17",
+    null,
+    null,
+    "p34",
+    "p25",
+    "p9",
+    "p31",
+    null
+  ],
+  "results": {
+    "R0-9": {
+      "players": [
+        "p5",
+        "p59"
+      ],
+      "winner": "p5",
+      "scores": {
+        "p5": "3",
+        "p59": "1"
+      },
+      "time": "14:00",
+      "table": "Masa 1",
+      "status": "completed"
+    },
+    "R0-20": {
+      "players": [
+        "p47",
+        "p16"
+      ],
+      "scores": {
+        "p47": "1",
+        "p16": "1"
+      },
+      "time": "14:30",
+      "table": "Masa 2",
+      "status": "in_progress"
+    },
+    "R0-31": {
+      "players": [
+        "p49",
+        "p24"
+      ],
+      "time": "15:00",
+      "table": "Masa 1",
+      "status": "scheduled"
+    },
+    "R0-42": {
+      "players": [
+        "p1",
+        "p51"
+      ],
+      "time": "15:30",
+      "table": "Masa 2",
+      "status": "scheduled"
+    }
+  },
+  "women": {
+    "title": "Masa Tenisi Turnuvası — Kadınlar",
+    "slots": [
+      null,
+      "p72",
+      "p73",
+      "p80",
+      "p81",
+      "p76",
+      null,
+      "p74",
+      "p75",
+      "p77",
+      null,
+      "p79",
+      "p71",
+      "p78",
+      "p82",
+      null
+    ],
+    "results": {}
+  },
+  "announcement": "🏓 Turnuvamıza hoş geldiniz! Maçlar Masa 1, Masa 2 ve Masa 3'te oynanmaktadır. Canlı saatler ve skorlar aşağıdan anlık güncellenmektedir.",
+  "tables": [
+    "Masa 1",
+    "Masa 2",
+    "Masa 3",
+    "Masa 4"
+  ],
+  "last_updated": "2026-10-15T22:30:00.000Z",
+  "rev": 1
+}
